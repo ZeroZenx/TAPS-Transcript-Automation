@@ -1,0 +1,40 @@
+{
+  "name": "taps-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "build": "echo 'Backend requires no build step'",
+    "db:migrate": "prisma migrate dev --schema=../prisma/schema.prisma",
+    "db:migrate:prod": "prisma migrate deploy --schema=../prisma/schema.prisma",
+    "db:generate": "prisma generate --schema=../prisma/schema.prisma",
+    "db:studio": "prisma studio --schema=../prisma/schema.prisma",
+    "db:seed": "node --loader ts-node/esm prisma/seed.js || node prisma/seed.js"
+  },
+  "prisma": {
+    "schema": "../prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.0.1",
+    "@azure/msal-node": "^2.6.4",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@prisma/client": "^5.7.1",
+    "axios": "^1.6.2",
+    "bcryptjs": "^3.0.2",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "prisma": "^5.7.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

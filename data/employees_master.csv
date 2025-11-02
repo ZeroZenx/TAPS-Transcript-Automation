@@ -1,0 +1,343 @@
+EmployeeID,FirstName,LastName,Email,Department,JobTitle,Campus,EmploymentCategory,SupervisorName,SupervisorEmail,ContractStartDate
+,"Koylass,",Naseem,nkoylass@costaatt.edu.tt,Academic Affairs,nan,,,Dr. Keith Nurse,,2022-07-01
+,"Charles,",Jason,jcharles@costaatt.edu.tt,Career Management Service,nan,,,Clarinda Jack,,2021-01-03
+,"Alexander,",Mitzy,malexander@costaatt.edu.tt,Communication Studies,nan,,,Clarinda Jack,,2022-02-01
+,"Batchasingh,",Roddy,rbachasingh@costaatt.edu.tt,Communication Studies,nan,,,Clarinda Jack,,2018-08-28
+,"Edwards Knox,",Sophia,sedwards@costaatt.edu.tt,Communication Studies,nan,,,Clarinda Jack,,2015-06-01
+,"Gouveia Ferguson,",Julie,jferguson@costaatt.edu.tt,Communication Studies,nan,,,Clarinda Jack,,2021-01-01
+,"James,",Kayode,kjames@costaatt.edu.tt,Communication Studies,nan,,,Clarinda Jack,,2020-08-01
+,"Joefield-Lovell,",Sharleen,sjoefield-lovell@costaatt.edu.tt,Communication Studies,nan,,,Clarinda Jack,,2020-08-01
+,"Kokaram,",John-Jason,jjkokaram@costaatt.edu.tt,Communication Studies,nan,,,Clarinda Jack,,2020-08-04
+,"Mitchell,",Michelle,mmitchell@costaatt.edu.tt,Communication Studies,nan,,,Clarinda Jack,,2022-04-11
+,"Derby,",Jodette,jderby@costaatt.edu.tt,Compass Center,nan,,,Permilla Farrell,,2022-11-01
+,"Farrell,",Permilla,pfarrell@costaatt.edu.tt,Compass Center,nan,,,Permilla Farrell,,2015-08-01
+,"Warner,",Adana,awarner@costaatt.edu.tt,Compass Center,nan,,,Permilla Farrell,,2020-07-09
+,"King,",Keron,kking@costaatt.edu.tt,Criminal Justice and Legal Studies,nan,,,Kirwin Pyle-Williams,,2018-01-05
+,"Lovelace,",Ria,rlovelace@costaatt.edu.tt,Criminal Justice and Legal Studies,nan,,,Kirwin Pyle-Williams,,2021-05-01
+,"Peters,",Kevin,kpeters@costaatt.edu.tt,Criminal Justice and Legal Studies,nan,,,Kirwin Pyle-Williams,,2019-09-02
+,"Pyle-Williams,",Kirwin,kpwilliams@costaatt.edu.tt,Criminal Justice and Legal Studies,nan,,,Kirwin Pyle-Williams,,2016-01-04
+,"David,",Kester,kdavid@costaatt.edu.tt,Educational Technologies and Distance Education,nan,,,Liesel Gransaull-Brown,,2019-10-01
+,"Gransaull-Brown,",Liesel,lgbrown@costaatt.edu.tt,Educational Technologies and Distance Education,nan,,,Liesel Gransaull-Brown,,2025-10-06
+,"Camps,",Erin,ecamps@costaatt.edu.tt,Enrollment Management,nan,,,Reynela Gilkes-Alvarez,,2020-04-02
+,"Franco,",Natalie,nfranco@costaatt.edu.tt,Enrollment Management,nan,,,Reynela Gilkes-Alvarez,,2021-11-16
+,"Gilkes-Alvarez,",Reynela,rgalvarez@costaatt.edu.tt,Enrollment Management,nan,,,Reynela Gilkes-Alvarez,,2021-02-01
+,"Kennedy,",Kevon,kkennedy@costaatt.edu.tt,Enrollment Management,nan,,,Reynela Gilkes-Alvarez,,2025-10-06
+,"Miller,",Tanasha,tmiller@costaatt.edu.tt,Enrollment Management,nan,,,Reynela Gilkes-Alvarez,,2017-10-01
+,"Mohammed,",Aaron,amohammed@costaatt.edu.tt,Enrollment Management,nan,,,Reynela Gilkes-Alvarez,,2020-08-03
+,"Morris,",Cindy,cmorris@costaatt.edu.tt,Enrollment Management,nan,,,Reynela Gilkes-Alvarez,,2021-01-17
+,"Pollard,",Marvin,mpollard@costaatt.edu.tt,Enrollment Management,nan,,,Reynela Gilkes-Alvarez,,2021-11-18
+,"Prevatt,",Liselle,lprevatt@costaatt.edu.tt,Enrollment Management,nan,,,Reynela Gilkes-Alvarez,,2020-04-10
+,"Villafana,",Abigail,avillafana@costaatt.edu.tt,Enrollment Management,nan,,,Reynela Gilkes-Alvarez,,2021-01-11
+,"Charles-Harris,",Abeni,acharles-harris@costaatt.edu.tt,Environmental Studies,nan,,,Karen Paul,,2017-08-01
+,"Elliot,",Venessa,velliot@costaatt.edu.tt,Environmental Studies,nan,,,Karen Paul,,2021-08-17
+,"Hypolite,",Michelle,mhypolite@costaatt.edu.tt,Environmental Studies,nan,,,Karen Paul,,2019-08-05
+,"Laltoo,",Sochan,slaltoo@costaatt.edu.tt,Environmental Studies,nan,,,Karen Paul,,2018-08-03
+,"Long,",Cheryl-Ann,clong@costaatt.edu.tt,Environmental Studies,nan,,,Karen Paul,,2021-05-09
+,"Paul,",Karen,kpaul@costaatt.edu.tt,Environmental Studies,nan,,,Karen Paul,,2016-03-01
+,"Virgil,",Christian,cvirgil@costaatt.edu.tt,Environmental Studies,nan,,,Karen Paul,,2019-08-12
+,"Clarke,",Melissa,mclarke@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2023-02-01
+,"Francis-Williams,",Salisha,sfranciswilliams@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2023-02-01
+,"Rodriguez,",Kervin,krodriguez@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2023-02-01
+,"Ali-Parris,",Haniffa,hparris@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-01-03
+,"Anderson-Roberts,",Dawn,droberts@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-05-13
+,"Charles,",Frank,fcharles@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-01-28
+,"Charles,",Teshia,tcharles@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-10-01
+,"Charles-Mathews,",Gisell,gcharles-mathews@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-10-01
+,"Daly, Kathy",Ann,kdaly@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2019-10-01
+,"Douglin,",Lana,ldouglin@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2017-08-07
+,"Eastman,",Minelva,meastman@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2018-04-27
+,"Evans-Ali,",Lindy,leali@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2016-03-01
+,"Francis,",Darrel,dfrancis@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-07-08
+,"Gomez,",Karen,kgomez@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2020-07-07
+,"Grant,",Camile,cgrant@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-08-01
+,"Isidore-Phillip,",Rose,risidore-phillip@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-10-15
+,"Jackson,",Akil,ajackson@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-05-01
+,"Jacob,",Kieron,kjacob@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-09-02
+,"Jones,",Lenora,ljones@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-05-06
+,"Jones,",Sherwin,sjones@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-05-01
+,"Joseph,",Florencia,fjoseph@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2022-07-02
+,"Laidlow,",Maria,mlaidlow@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-09-01
+,"Laynies,",Charles,claynies@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2016-07-14
+,"Leith,",Rachel,rleith@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2020-04-16
+,"Letren,",Helena,hletren@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-02-14
+,"Lopez,",Beulah,blopez@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2017-08-07
+,"Mc Pherson,",Sherma,smcpherson@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-05-06
+,"Noor,",Salisha,snoor@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-04-21
+,"Preddie,",Otis,opreddie@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2022-04-10
+,"Riley,",Paula,priley@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2020-06-27
+,"Romany,",Karla,kromany@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2016-09-01
+,"Romany,",Nigel,nromany@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2019-07-08
+,"Scott,",Pamela,pscott@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-05-13
+,"Tom,",Kenneth,ktom@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2017-05-01
+,"Vance,",Vernon,vvance@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2019-09-02
+,"Williams Thomas,",Joan,jwilliamsthomas@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2021-05-06
+,"Williams-Layne,",Erica,ewilliams-layne@costaatt.edu.tt,Facilities Management,nan,,,Alvinelle Matthew,,2020-04-17
+,"Alexander-Joseph,",Sarah,sralexander@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2019-01-02
+,"Cameron,",Fiona,fcameron@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2019-07-22
+,"Daniel,",Princess,pdaniel@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2019-10-01
+,"Dookie,",Dawn,ddookie@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2015-12-01
+,"Edwards,",Heather,hedwards@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2019-01-02
+,"Irish-Garibana,",Annette,airish-garibana@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2017-07-01
+,"Job,",Jamilla,jjob@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2021-01-02
+,"Mc Phie,",Sherissa,smcphie@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2019-07-01
+,"Phillip,",Amanda,aphillip@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2019-01-01
+,"Pujadas,",Elisa,epujadas@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2025-10-06
+,"Scanterbury,",Candis,cscanterbury@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2020-01-03
+,"Sealey,",Nigel,nsealey@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2018-10-01
+,"Wellington,",Shannon,swellington@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2020-08-04
+,"Worme,",Chrysanta,cworme@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2019-10-01
+,"Zacharie-Hernandez,",Allana,azacharie-hernandez@costaatt.edu.tt,Finance,nan,,,Dawn Dookie,,2019-10-01
+,"Gonzales,",Nadine,ngonzales@costaatt.edu.tt,Fine and Performing Arts,nan,,,Nadine Gonzales,,2016-01-04
+,"Harry,",Aidoo,aharry@costaatt.edu.tt,Fine and Performing Arts,nan,,,Nadine Gonzales,,2022-09-01
+,"Lezama,",Anthony,alezama@costaatt.edu.tt,Fine and Performing Arts,nan,,,Nadine Gonzales,,2021-05-01
+,"Chalmers,",Lasana,lchalmers@costaatt.edu.tt,Fleet and Mail Services,nan,,,Alvinelle Matthew,,2022-07-01
+,"Gomez,",Junior,jgomez@costaatt.edu.tt,Fleet and Mail Services,nan,,,Alvinelle Matthew,,2016-05-14
+,"Nelson,",Kevin,knelson@costaatt.edu.tt,Fleet and Mail Services,nan,,,Alvinelle Matthew,,2021-10-01
+,"Persad,",Robindra,rpersad@costaatt.edu.tt,Fleet and Mail Services,nan,,,Alvinelle Matthew,,2021-07-14
+,"Pesnell,",Ian,ipesnell@costaatt.edu.tt,Fleet and Mail Services,nan,,,Alvinelle Matthew,,2022-07-01
+,"Small-Moo King,",Gillian,gsmall-mooking@costaatt.edu.tt,Fleet and Mail Services,nan,,,Alvinelle Matthew,,2025-10-06
+,"Dann,",Heather,hdann@costaatt.edu.tt,Health and Counselling Services,nan,,,nan,,2022-02-02
+,"Mc Clean,",Nadia,nmcclean@costaatt.edu.tt,Health and Counselling Services,nan,,,nan,,2021-04-04
+,"Alexander,",Taja,talexander@costaatt.edu.tt,Health Science Technologies,nan,,,Anthony Lalla,,2020-10-21
+,"Balgobin-Ahamad,",Marsha,mbalgobin-ahamad@costaatt.edu.tt,Health Science Technologies,nan,,,Anthony Lalla,,2021-05-01
+,"Lalla,",Anthony,alalla@costaatt.edu.tt,Health Science Technologies,nan,,,Anthony Lalla,,2017-12-01
+,"Santiago,",Ma.Ferlin,msantiago@costaatt.edu.tt,Health Science Technologies,nan,,,Anthony Lalla,,2016-08-01
+,"Sharpe,",Wendy,wsharpe@costaatt.edu.tt,Health Science Technologies,nan,,,Anthony Lalla,,2018-03-02
+,"Sookdeo,",Eileen,esookdeo@costaatt.edu.tt,Health Science Technologies,nan,,,Anthony Lalla,,2020-01-01
+,"Hosein,",Saleem,shosein@costaatt.edu.tt,Human Resources,nan,,,Alvinelle Matthew,,2021-04-23
+,"Hypolite,",Nicolle,nhypolite@costaatt.edu.tt,Human Resources,nan,,,Alvinelle Matthew,,2020-12-13
+,"Junkere,",Liselle,ljunkere@costaatt.edu.tt,Human Resources,nan,,,Alvinelle Matthew,,2020-10-09
+,"Matthew,",Alvinelle,amatthew@costaatt.edu.tt,Human Resources,nan,,,Dr. Keith Nurse,,2018-01-02
+,"Noel,",Stacey-Anne,snoel@costaatt.edu.tt,Human Resources,nan,,,Alvinelle Matthew,,2020-03-12
+,"Stanisclaus,",Marcia,mstanisclaus@costaatt.edu.tt,Human Resources,nan,,,Alvinelle Matthew,,2015-12-01
+,"Absalom,",Dexter,dabsalom@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2020-10-04
+,"Andrews,",Adrian,aandrews@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2017-08-01
+,"Bennett Alexander,",Nicole,nbennettalexander@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2019-08-01
+,"Bernard,",Cindy,cbernard@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2021-10-20
+,"Cadogan,",Andre,acadogan@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2018-01-01
+,"Charles,",Maurisa,mcharles@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2019-05-01
+,"Chung,",Roger,rchung@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2016-08-01
+,"David,",Raechelle,rdavid@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2021-01-24
+,"Dennis-Nagee,",Alicia,adennis-nagee@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2021-08-03
+,"Gokool,",Maneka,mgokool@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2018-08-10
+,"Jarvis-Patrick,",Joanne,jjarvis-patrick@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2019-08-05
+,"Sterling,",Job,jsterling@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2020-08-01
+,"Williams,",Stacy,swilliams@costaatt.edu.tt,Information Science and Technology,nan,,,Roger Chung,,2020-01-03
+,"Mc Kellar-Cumberbatch,",Cheryl,cmckellar-cumberbatch@costaatt.edu.tt,Institutional Advancement,nan,,,Alvinelle Matthew,,2020-09-29
+,"Maharaj,",Kavita,kmaharaj@costaatt.edu.tt,Internal Audit,nan,,,Kavita Maharaj,,2022-10-31
+,"Ali,",Nazia,nali@costaatt.edu.tt,Internal Audit,nan,,,Kavita Maharaj,,2020-09-03
+,"Rodriguez,",Patsy-Ann,prodriguez@costaatt.edu.tt,Internal Audit,nan,,,Kavita Maharaj,,2021-03-01
+,"Keane,",Blossom,bkeane@costaatt.edu.tt,Journalism and Media Studies,nan,,,Clarinda Jack,,2022-02-01
+,"Ojoade,",Oyetayo,oojoade@costaatt.edu.tt,Journalism and Media Studies,nan,,,Clarinda Jack,,2021-02-01
+,"Jack,",Clarinda,cjack@costaatt.edu.tt,Ken Gordon School of Journalism and Communication Studies,nan,,,Clarinda Jack,,2015-06-01
+,"Springer,",Jodene,jspringer@costaatt.edu.tt,Ken Gordon School of Journalism and Communication Studies,nan,,,Clarinda Jack,,2022-02-01
+,"Dial,",Christian,cdial@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2020-01-01
+,"Dougdeen,",Karen,kdougdeen@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2020-01-01
+,"Dyette,",Raymond,rdyette@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2017-08-02
+,"Gill-Grill,",Ines,igill-grill@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2020-08-01
+,"Guzman,",Abigail,aguzman@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2018-08-10
+,"Hazelwood,",Shonell,shazelwood@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2021-10-01
+,"Hospedales,",Louann,lhospedales@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2020-02-01
+,"Kendall,",Kim,kkendall@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2021-01-01
+,"Mahase,",Radica,rmahase@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2019-08-01
+,"Maurice-Phillip,",Tamara,tmaurice-phillip@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2022-01-14
+,"Ng Wai,",Sean,sngwai@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2021-01-01
+,"Quildon-Doonie,",Angela,aquildon-doonie@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2019-08-02
+,"Ryan,",Jennifer,jryan@costaatt.edu.tt,Language Literature and Communication Studies,nan,,,Clarinda Jack,,2021-01-01
+,"Alfonso,",Kevin,kalfonso@costaatt.edu.tt,Library Services,nan,,,nan,,2025-10-06
+,"Bernard,",Nneka,nbernard@costaatt.edu.tt,Library Services,nan,,,nan,,2021-02-05
+,"Browne,",Arlene,abrowne@costaatt.edu.tt,Library Services,nan,,,nan,,2022-01-18
+,"Charles,",Kwame,kcharles@costaatt.edu.tt,Library Services,nan,,,nan,,2022-03-01
+,"Emmons-Creft,",Pauline,pemmons-creft@costaatt.edu.tt,Library Services,nan,,,nan,,2025-10-06
+,"Humphrey,",Patricia,phumphrey@costaatt.edu.tt,Library Services,nan,,,nan,,2021-05-16
+,"Irish,",Judy,jirish@costaatt.edu.tt,Library Services,nan,,,nan,,2022-02-04
+,"John-Miller,",Alicia,ajohn-miller@costaatt.edu.tt,Library Services,nan,,,nan,,2020-12-10
+,"Lewis,",Marcia,mlewis@costaatt.edu.tt,Library Services,nan,,,nan,,2021-06-27
+,"Marshall,",Louise,lmarshall@costaatt.edu.tt,Library Services,nan,,,nan,,2020-06-20
+,"Omowale,",Folami,fomowale@costaatt.edu.tt,Library Services,nan,,,nan,,2021-02-19
+,"Patrick,",Kezia,kpatrick@costaatt.edu.tt,Library Services,nan,,,nan,,2020-02-08
+,"Remey,",Nickisha,nremey@costaatt.edu.tt,Library Services,nan,,,nan,,2022-02-11
+,"Richardson-Drakes,",Arlene,arichardson-drakes@costaatt.edu.tt,Library Services,nan,,,nan,,2021-06-03
+,"Samuel,",Pauline,psamuel@costaatt.edu.tt,Library Services,nan,,,nan,,2021-05-16
+,"Sinnette-Sequea,",Nadine,nsinnette-sequea@costaatt.edu.tt,Library Services,nan,,,nan,,2021-08-04
+,"Stewart,",Cordelia,cstewart@costaatt.edu.tt,Library Services,nan,,,nan,,2021-07-01
+,"Awai-King,",Sarah,sawai-king@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2019-01-04
+,"Bahaw,",Priscilla,pbahaw@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2020-08-01
+,"Balfour,",Shaun,sbalfour@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2019-05-01
+,"Benjamin,",Clinton,cbenjamin@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2019-01-18
+,"Bissoo,",Wayne,wbissoo@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2022-07-01
+,"Granger-Thompson,",Fiona,fgranger-thompson@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2021-08-08
+,"Hamid,",Sajjad,shamid@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2022-08-01
+,"John,",Ricardo,rjohn@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2020-11-01
+,"Khan,",Jerome,jkhan@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2025-10-06
+,"Kissoon-Weekes,",Jinelle,jkissoon-weekes@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2018-01-01
+,"Lezama,",Danelle,dlezama@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2020-08-01
+,"Mc Gowan-Santana,",Kyra,kmcgowan-santana@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2018-09-01
+,"Medine,",Ambica,amedine@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2021-08-04
+,"Mungaldeen,",Charmaine,cmungaldeen@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2022-08-02
+,"Ramsundar,",Giselle,gramsundar@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2020-01-01
+,"Sealey,",Heather-Dawn,hsealey@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2016-02-01
+,"Soogrim,",Carlton,csoogrim@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2019-01-25
+,"Stewart-Ache,",Antoinette,astewart-ache@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2022-08-02
+,"Stoute,",Tracey,tstoute@costaatt.edu.tt,Management and Entrepreneurship,nan,,,Heather-Dawn Sealey,,2019-08-01
+,"Mark,",Taslim,tmark@costaatt.edu.tt,Marketing and Public Relations,nan,,,nan,,2021-11-16
+,"Cutting,",Lachelle,lcutting@costaatt.edu.tt,Marketing and Public Relations,nan,,,nan,,2018-12-01
+,"Simon,",Dawnelle,dsimon@costaatt.edu.tt,Marketing and Public Relations,nan,,,nan,,2022-06-08
+,"Sylvester,",Karla,ksylvester@costaatt.edu.tt,Marketing and Public Relations,nan,,,nan,,2020-11-20
+,"Robinson,",Mwenda,mrobinson@costaatt.edu.tt,Marketing and Public Relations,nan,,,nan,,2021-01-11
+,"Clarke,",Anthea,aclarke@costaatt.edu.tt,Mathematics,nan,,,Anthea Clarke,,2021-01-06
+,"Felix,",Alton,afelix@costaatt.edu.tt,Mathematics,nan,,,Anthea Clarke,,2020-08-01
+,"La Coa,",Kizzi,klatouche@costaatt.edu.tt,Mathematics,nan,,,Anthea Clarke,,2020-08-01
+,"La Rose,",Hamere,hlarose@costaatt.edu.tt,Mathematics,nan,,,Anthea Clarke,,2018-10-02
+,"Leela,",Jeffrey,jleela@costaatt.edu.tt,Mathematics,nan,,,Anthea Clarke,,2020-01-01
+,"Maurice,",Brian,bmaurice@costaatt.edu.tt,Mathematics,nan,,,Anthea Clarke,,2016-01-31
+,"Maynard,",Jeffrey,jmaynard@costaatt.edu.tt,Mathematics,nan,,,Anthea Clarke,,2020-01-03
+,"Moses,",Juliana,jmoses@costaatt.edu.tt,Mathematics,nan,,,Anthea Clarke,,2016-12-13
+,"Pierre,",Joanne,jpierre@costaatt.edu.tt,Mathematics,nan,,,Anthea Clarke,,2020-01-01
+,"Ramdial-Sookan,",Parvati,pramdial-sookan@costaatt.edu.tt,Mathematics,nan,,,Anthea Clarke,,2020-08-08
+,"Ramlal,",Laura,lramlal@costaatt.edu.tt,Mathematics,nan,,,Anthea Clarke,,2018-09-07
+,"Ramlal,",Robin,rramlal@costaatt.edu.tt,Mathematics,nan,,,Anthea Clarke,,2021-08-02
+,"Abdul,",Raqib,rabdul@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2021-09-01
+,"Bidaisee,",Sheldon,sbidaisee@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2022-01-11
+,"Bovell,",Nyron,nbovell@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2022-02-03
+,"Campbell,",Patrick,pcampbell@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2016-08-01
+,"Cooper,",Jameson,jcooper@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2017-06-21
+,"Durham,",Jenna,jdurham@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2021-05-02
+,"George,",Shaloma,sgeorge@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2021-05-01
+,"Guptar,",Kyle,kguptar@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2021-10-10
+,"Joseph,",Nadia,njoseph@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2020-09-28
+,"Kalloo,",Risha,rkalloo@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2021-01-12
+,"Mohammed,",Jeffrey,jmmohammed@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2020-01-01
+,"Mohansingh,",Shashiprabha,smohansingh@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2019-09-01
+,"Olton,",Romona,rolton@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2021-01-01
+,"Rampersad,",Ravi,rrampersad@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2020-08-01
+,"Roopnarine,",Hema,hroopnarine@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2019-09-02
+,"Sahibdeen,",Saeeda,ssahibdeen@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2022-08-01
+,"Seenarine,",Shireen,sseenarine@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2022-09-01
+,"Singh,",Anuradha,asingh@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2021-01-12
+,"Wilson,",Delamae,dwilson@costaatt.edu.tt,Natural and Life Sciences,nan,,,Delamae Wilson,,2016-01-04
+,"George,",Corey,cgeorge@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2023-04-03
+,"Hamlet-Cooper,",Tessima,thamlet-cooper@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2023-04-03
+,"Roberts-Harroo,",Dave-Anne,droberts-harroo@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2023-04-03
+,"Theroulde,",Alicia,atheroulde@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2023-03-01
+,"Alleyne,",Carla,calleyne@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2019-04-19
+,"Alleyne,",Kenneth,kalleyne@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2022-01-01
+,"Bascombe Mc Cave,",Carolyn,cbascombe-mccave@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2016-08-01
+,"Boodoosingh-Dwarika,",Anjenney,aboodoosingh-dwarika@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2015-09-01
+,"Bremnor,",Abraham,abremnor@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2018-09-26
+,"Caesar-Pecome,",Marsha,mcaesar-pecome@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2019-05-21
+,"Charles Jones Tobas,",Jesinta,jcharles-jonestobas@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2022-04-01
+,"Charles-Stuart,",Alicia,acharles-stuart@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2016-08-05
+,"Garibsingh,",Rhonda,rgaribsingh@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2025-10-06
+,"Gibson,",Catherine,cgibson@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2016-05-21
+,"Girdharry,",Crystal,cgirdharry@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2020-08-19
+,"Henry,",Joann,jhenry@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2019-05-01
+,"Jacob,",Marvalon,mjacob@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2017-11-30
+,"Jarvis-Isaac,",Rita,rjarvis-isaac@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2019-08-01
+,"Karim,",Riaz,rkarim@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2017-04-04
+,"Mc Pherson,",Delka,dmcpherson@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2016-06-03
+,"Metivier-Carrington,",Gail,gmetivier-carrington@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2019-01-01
+,"Mir,",Ruhee,rmir@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2020-01-01
+,"Mohess,",Yatasha,ymohess@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2017-06-01
+,"Rambaran,",Amrika,arambaran@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2016-08-05
+,"Ramdeen-Lutchman,",Gemma,gramdeen-lutchman@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2021-05-07
+,"Sandy,",Lisa,lsandy@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2025-10-06
+,"Syne,",Susan,ssyne@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2017-09-05
+,"Walker,",Alicia,awalker@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2018-03-02
+,"Whiskey,",Indra,iwhiskey@costaatt.edu.tt,Nursing,nan,,,Jesinta Tobas,,2020-06-08
+,"Alonzo-Williams,",Carla,calonzo-williams@costaatt.edu.tt,Office of the Assistant to the President,nan,,,Dr. Keith Nurse,,2015-01-01
+,"Banfield,",Kempson,kbanfield@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2018-04-10
+,"Castro,",Rachel,rcastro@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2020-05-20
+,"Cumberbatch,",Rhonda,rcumberbatch@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2017-03-01
+,"Jagpath,",Allison,ajagpath@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2025-10-06
+,"King,",Gwyneth,gking@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2020-08-16
+,"Madoo,",Karen,kmadoo@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2025-10-06
+,"Martineau,",Keisha,kmartineau@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2025-10-06
+,"Mollick,",Zalina,zmollick@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2021-04-01
+,"Paul,",Gideon,gpaul@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2025-10-06
+,"Pope,",Kellyann,kpope@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2019-11-03
+,"Ragoopath,",Maltie,mragoopath@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2021-07-02
+,"Riley,",Kinda,kriley@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2020-03-06
+,"Sandiford,",Lea-Andro,lsandiford@costaatt.edu.tt,Office of the College Registrar,nan,,,Rhonda Cumberbatch,,2020-03-01
+,"Singh,",Sheena,ssingh@costaatt.edu.tt,Office of the Corporate Secretary,nan,,,Lisa Solomon,,2019-10-24
+,"Solomon,",Lisa,lsolomon@costaatt.edu.tt,Office of the Corporate Secretary,nan,,,Lisa Solomon,,2016-10-17
+,"Gordon,",Mandisa,mgordon@costaatt.edu.tt,"Office of the Dean, School of Liberal Arts and Human Services",nan,,,Neil Sylvester,,2025-10-06
+,"Sylvester,",Neil,nsylvester@costaatt.edu.tt,"Office of the Dean, School of Liberal Arts and Human Services",nan,,,Neil Sylvester,,2015-09-01
+,"Amar,",Rodney,ramar@costaatt.edu.tt,Office of the President,nan,,,Dr. Keith Nurse,,2018-03-01
+,"Nurse,",Keith,knurse@costaatt.edu.tt,Office of the President,nan,,,Dr. Keith Nurse,,2022-11-01
+,"Thomas,",Nigel,nthomas@costaatt.edu.tt,Office of the Registrar,nan,,,Rhonda Cumberbatch,,2021-11-01
+,"Carmichael,",Leonette,lcarmichael@costaatt.edu.tt,Procurement,nan,,,Alvinelle Matthew,,2020-03-29
+,"Johnson,",Aaliya,ajohnson@costaatt.edu.tt,Procurement,nan,,,Alvinelle Matthew,,2016-04-26
+,"La Roche,",Reyon,rlaroche@costaatt.edu.tt,Procurement,nan,,,Alvinelle Matthew,,2021-05-01
+,"Stewart,",Gia-Marie,gstewart@costaatt.edu.tt,Procurement,nan,,,Alvinelle Matthew,,2021-07-01
+,"Baptiste,",Troy,tbaptiste@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2020-09-12
+,"Caldeira-Hall,",Emris,ecaldeira-hall@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2021-07-08
+,"Caldon,",John,jcaldon@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2020-10-01
+,"County-Trancoso,",Carol,ccounty-trancoso@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2021-08-02
+,"Lalchan,",Melissa,mlalchan@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2019-11-21
+,"Lewis,",Nigel,nlewis@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2019-06-02
+,"Murray,",Nigel,nmurray@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2019-10-01
+,"Nedd,",Neila,nnedd@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2017-05-01
+,"Phillips,",Kyle,kphillips@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2020-07-08
+,"Sutton,",Ricardo,rsutton@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2019-10-01
+,"Taylor,",Joel,jtaylor@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2020-09-03
+,"Thompson,",Cherian,cthompson@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2018-09-15
+,"Torres,",Kirk,ktorres@costaatt.edu.tt,Public Safety and Security Services,nan,,,Alvinelle Matthew,,2020-09-15
+,"Bynoe,",Valline,vbynoe@costaatt.edu.tt,Quality Assurance and Institutional Research,nan,,,Doodnath Persad,,2022-09-01
+,"Lyiscott-Barrow,",Gillian,glyiscott-barrow@costaatt.edu.tt,Quality Assurance and Institutional Research,nan,,,Doodnath Persad,,2021-12-19
+,"Persad,",Doodnath,dpersad@costaatt.edu.tt,Quality Assurance and Institutional Research,nan,,,Doodnath Persad,,2015-08-02
+,"Sargeant,",Roxanne,rsargeant@costaatt.edu.tt,Quality Assurance and Institutional Research,nan,,,Doodnath Persad,,2021-11-16
+,"Ferguson,",Sharon,sferguson@costaatt.edu.tt,Reception and Hospitality Services,nan,,,nan,,2016-10-20
+,"Mohammed,",Fazia,fmohammed@costaatt.edu.tt,Reception and Hospitality Services,nan,,,nan,,2022-01-01
+,"Garib,",Shalini,sgarib@costaatt.edu.tt,Sangre Grande Campus,nan,,,nan,,2022-03-12
+,"Sinanan,",Grace,gsinanan@costaatt.edu.tt,Sangre Grande Campus,nan,,,nan,,2022-05-01
+,"Joseph,",Leticia,ljoseph@costaatt.edu.tt,School of Continuing Education and Lifelong Learning,nan,,,nan,,2022-09-05
+,"Ramlal-Chirkoot,",Lalita,lramlal-chirkoot@costaatt.edu.tt,School of Continuing Education and Lifelong Learning,nan,,,nan,,2015-09-01
+,"Munroe,",Anderson,amunroe@costaatt.edu.tt,Social and Behavioral Sciences,nan,,,nan,,2022-04-04
+,"Arnold,",Tashawnda,tarnold@costaatt.edu.tt,Social and Behavioral Sciences,nan,,,nan,,2022-01-03
+,"Barclay,",Rosalie,rbarclay@costaatt.edu.tt,Social and Behavioral Sciences,nan,,,nan,,2020-08-01
+,"Bertrand-Charles,",Ayanna,abertrand-charles@costaatt.edu.tt,Social and Behavioral Sciences,nan,,,nan,,2019-08-01
+,"Humphrey,",Melina,mhumphrey@costaatt.edu.tt,Social and Behavioral Sciences,nan,,,nan,,2021-01-11
+,"Mc Intosh,",Tricia,tmcintosh@costaatt.edu.tt,Social and Behavioral Sciences,nan,,,nan,,2019-08-01
+,"Nelson,",Vanessa,vnelson@costaatt.edu.tt,Social and Behavioral Sciences,nan,,,nan,,2020-01-01
+,"Pooran-Roodal,",Mervyn,mpooran-roodal@costaatt.edu.tt,Social and Behavioral Sciences,nan,,,nan,,2021-01-01
+,"St Rose,",Nneka,nstrose@costaatt.edu.tt,Social and Behavioral Sciences,nan,,,nan,,2020-01-02
+,"Wills,",Nicole,nwills@costaatt.edu.tt,Social and Behavioral Sciences,nan,,,nan,,2021-10-18
+,"Gibson,",Safiya,sgibson@costaatt.edu.tt,South Campus,nan,,,Naseem Koylass,,2021-05-31
+,"Heeradhan,",Jeniffer,jheeradhan@costaatt.edu.tt,South Campus,nan,,,Naseem Koylass,,2016-03-05
+,"Hosein,",Vashantie,vhosein@costaatt.edu.tt,South Campus,nan,,,Naseem Koylass,,2020-09-12
+,"Jobe,",Leslie-Ann,ljobe@costaatt.edu.tt,South Campus,nan,,,Naseem Koylass,,2021-06-19
+,"Manickchand-Birwar,",Crystal,cmanickchand-birwar@costaatt.edu.tt,South Campus,nan,,,Naseem Koylass,,2020-12-20
+,"Cumberbatch,",Helen,hcumberbatch@costaatt.edu.tt,Student Affairs,nan,,,Dr. Keith Nurse,,2022-07-01
+,"Carter,",Ian,icarter@costaatt.edu.tt,Student Life and Athletics,nan,,,Ian Carter,,2016-11-10
+,"Mc Clean,",Annette,amcclean@costaatt.edu.tt,Student Life and Athletics,nan,,,Ian Carter,,2021-06-01
+,"Ramah,",Nigel,nramah@costaatt.edu.tt,Student Life and Athletics,nan,,,Ian Carter,,2022-07-13
+,"Thomas,",Janeller,jthomas@costaatt.edu.tt,Student Life and Athletics,nan,,,Ian Carter,,2020-12-01
+,"Ali,",Heather,hali@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2021-05-01
+,"Alimayu,",Kayode,kalimayu@costaatt.edu.tt,Technology Services,nan,,,nan,,2021-08-17
+,"Assam-Arneaud,",Johann,jassam@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2021-09-01
+,"Baboolal,",Brian,bbaboolal@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2022-02-11
+,"Benn,",Isaiah,ibenn@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2019-10-12
+,"Dhannie,",Varick,vdhannie@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2021-11-27
+,"Dolly,",Donald,ddolly@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2021-02-01
+,"Goodridge,",Randolph,rgoodridge@costaatt.edu.tt,Technology Services,nan,,,nan,,2021-11-01
+,"Headley,",Darren,dheadley@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2020-09-01
+,"Headley,",Melissa,mheadley@costaatt.edu.tt,Technology Services,nan,,,nan,,2020-08-01
+,"Jakhoo,",Kevin,kjakhoo@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2021-05-13
+,"Mitchell,",Aaron,amitchell@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2019-06-04
+,"Parasram,",Shiva,sparasram@costaatt.edu.tt,Technology Services,nan,,,nan,,2021-08-03
+,"Ramrattan,",Varune,vramrattan@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2021-12-05
+,"Rattansingh,",Darren,drattansingh@costaatt.edu.tt,Technology Services,nan,,,nan,,2021-08-05
+,"Reece,",Kevin,kreece@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2019-10-03
+,"Romero,",Deborah,dromero@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2021-11-01
+,"Thomas,",Kegan,kthomas@costaatt.edu.tt,Technology Services,nan,,,Darren Headley,,2020-02-11
+,"Chase,",Elise,echase@costaatt.edu.tt,Tobago Campus,nan,,,Alvinelle Matthew,,2020-02-27
+,"Durham,",Patricia,pdurham@costaatt.edu.tt,Tobago Campus,nan,,,Alvinelle Matthew,,2020-07-20
+,"James,",Dane,djames@costaatt.edu.tt,Tobago Campus,nan,,,Alvinelle Matthew,,2020-03-01
+,"James,",Sophia,sjames@costaatt.edu.tt,Tobago Campus,nan,,,Alvinelle Matthew,,2019-12-04
+,"Kirk,",Shanice,skirk@costaatt.edu.tt,Tobago Campus,nan,,,Alvinelle Matthew,,2020-01-03
+,"Manswell,",Nuhvaughn,nmanswell@costaatt.edu.tt,Tobago Campus,nan,,,Alvinelle Matthew,,2020-01-03
+,"de Lancey,",Mariel,mlancey@costaatt.edu.tt,Translation and Interpretation Service,nan,,,Chantale Leonard-St. Clair,,2020-01-01
+,"Hackett,",Krystal,khackett@costaatt.edu.tt,Translation and Interpretation Service,nan,,,Chantale Leonard-St. Clair,,2020-11-01
+,"Leonard-St.Clair,",Chantale,cstclair@costaatt.edu.tt,Translation and Interpretation Services,nan,,,Chantale Leonard-St. Clair,,2025-10-06
+,nan,,nan,Academic Affairs,Vice President Academic Affairs,,,knurse@costaatt.edu.tt,,2022-07-01

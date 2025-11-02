@@ -1,0 +1,79 @@
+// Prisma schema for TAPS Transcript Automation System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  LIBRARY
+  BURSAR
+  ACADEMIC
+  VERIFIER
+  PROCESSOR
+  ADMIN
+}
+
+enum RequestStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  name           String
+  role           Role     @default(STUDENT)
+  passwordHash   String?  // For local authentication
+  authMethod     String   @default("AZURE") // AZURE or LOCAL
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  requests       Request[]
+  auditLogs      AuditLog[]
+}
+
+model Request {
+  id             String         @id @default(uuid())
+  studentId      String
+  studentEmail   String
+  program        String
+  requestDate    DateTime       @default(now())
+  status         RequestStatus  @default(PENDING)
+  academicStatus String?
+  academicNote   String?
+  libraryStatus  String?
+  libraryNote    String?
+  bursarStatus   String?
+  bursarNote     String?
+  verifierNotes  String?
+  processorNotes String?
+  filesUrl       String?
+  lastUpdated    DateTime       @updatedAt
+  userId         String?
+  user           User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  auditLogs      AuditLog[]
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  requestId String?
+  request   Request? @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  details   String?
+  timestamp DateTime @default(now())
+
+  @@index([requestId])
+  @@index([userId])
+  @@index([timestamp])
+}
+
