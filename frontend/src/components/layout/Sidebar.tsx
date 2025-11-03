@@ -12,7 +12,8 @@ import {
   Users,
   Upload,
   FileSearch,
-  BarChart3
+  BarChart3,
+  Activity
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -36,6 +37,7 @@ const navItems: NavItem[] = [
   { title: 'Import Data', href: '/admin/import', icon: Upload, roles: ['ADMIN'] },
   { title: 'Audit Logs', href: '/admin/audit', icon: FileSearch, roles: ['ADMIN'] },
   { title: 'Reports', href: '/admin/reports', icon: BarChart3, roles: ['ADMIN'] },
+  { title: 'Advanced Dashboard', href: '/admin/advanced', icon: Activity, roles: ['ADMIN'] },
   { title: 'Settings', href: '/settings', icon: Settings, roles: ['ADMIN'] },
 ];
 

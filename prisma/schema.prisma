@@ -20,6 +20,7 @@ model User {
   updatedAt      DateTime @updatedAt
   requests       Request[]
   auditLogs      AuditLog[]
+  errorLogs      ErrorLog[]
 }
 
 model Request {
@@ -122,6 +123,7 @@ model Request {
   userId         String?
   user           User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   auditLogs      AuditLog[]
+  slaMetrics     SLAMetric[]
 }
 
 model AuditLog {
@@ -182,5 +184,136 @@ model Settings {
   // Timestamps
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+}
+
+model AnalyticsSnapshot {
+  id                    String   @id @default(uuid())
+  date                  DateTime @default(now())
+  // Department Metrics
+  libraryAvgProcessingTime Float?   // Average processing time in hours
+  bursarAvgProcessingTime  Float?
+  academicAvgProcessingTime Float?
+  processorAvgProcessingTime Float?
+  // Request Metrics
+  totalRequests         Int      @default(0)
+  pendingRequests       Int      @default(0)
+  completedRequests     Int      @default(0)
+  cancelledRequests     Int      @default(0)
+  // Volume by Department
+  libraryPendingCount   Int      @default(0)
+  bursarPendingCount    Int      @default(0)
+  academicPendingCount  Int      @default(0)
+  processorPendingCount Int      @default(0)
+  // Trends
+  requestsCreatedToday  Int      @default(0)
+  requestsCompletedToday Int     @default(0)
+  createdAt             DateTime @default(now())
+
+  @@index([date])
+}
+
+model SLAMetric {
+  id                    String   @id @default(uuid())
+  requestId             String?
+  request               Request? @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  department            String   // LIBRARY, BURSAR, ACADEMIC, PROCESSOR
+  targetHours           Int      // SLA target in hours
+  actualHours           Float?   // Actual processing time in hours
+  status                String   @default("PENDING") // PENDING, MET, BREACHED, WARNING
+  startTime             DateTime
+  completedTime         DateTime?
+  breached              Boolean  @default(false)
+  warningSent           Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([requestId])
+  @@index([department])
+  @@index([status])
+  @@index([startTime])
+}
+
+model Backup {
+  id                    String   @id @default(uuid())
+  filename              String
+  filePath              String
+  backupType            String   @default("FULL") // FULL, INCREMENTAL
+  sizeBytes             Int
+  recordCount           Int?     // Number of records backed up
+  status                String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  startedAt             DateTime @default(now())
+  completedAt           DateTime?
+  errorMessage          String?
+  createdBy             String?
+  createdAt             DateTime @default(now())
+
+  @@index([backupType])
+  @@index([status])
+  @@index([startedAt])
+}
+
+model SystemHealth {
+  id                    String   @id @default(uuid())
+  timestamp             DateTime @default(now())
+  // Server Metrics
+  cpuUsage              Float?   // CPU usage percentage
+  memoryUsage           Float?   // Memory usage percentage
+  diskUsage             Float?   // Disk usage percentage
+  // Database Metrics
+  dbConnectionCount     Int?
+  dbQueryTime           Float?   // Average query time in ms
+  // Application Metrics
+  activeUsers           Int      @default(0)
+  requestsPerMinute      Float    @default(0)
+  errorCount            Int      @default(0)
+  // Response Times
+  avgResponseTime       Float?   // Average API response time in ms
+  // Status
+  status                String   @default("HEALTHY") // HEALTHY, WARNING, CRITICAL
+  alerts                String?  // JSON array of active alerts
+
+  @@index([timestamp])
+  @@index([status])
+}
+
+model ErrorLog {
+  id                    String   @id @default(uuid())
+  errorType             String   // ERROR, WARNING, CRITICAL
+  message               String
+  stackTrace            String?
+  userId                String?
+  user                  User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  requestId             String?
+  endpoint              String?
+  statusCode            Int?
+  resolved              Boolean  @default(false)
+  resolvedAt           DateTime?
+  resolvedBy            String?
+  createdAt             DateTime @default(now())
+
+  @@index([errorType])
+  @@index([userId])
+  @@index([requestId])
+  @@index([resolved])
+  @@index([createdAt])
+}
+
+model ScheduledReport {
+  id                    String   @id @default(uuid())
+  name                  String
+  reportType            String   // ANALYTICS, PERFORMANCE, COMPLIANCE, CUSTOM
+  frequency             String   // DAILY, WEEKLY, MONTHLY
+  dayOfWeek             Int?     // 0-6 for weekly (0=Sunday)
+  dayOfMonth            Int?     // 1-31 for monthly
+  recipients            String   // JSON array of email addresses
+  filters               String?  // JSON object with filter criteria
+  lastRun               DateTime?
+  nextRun               DateTime
+  enabled               Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([enabled])
+  @@index([nextRun])
 }
 

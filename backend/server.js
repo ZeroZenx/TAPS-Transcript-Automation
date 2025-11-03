@@ -17,6 +17,11 @@ import auditRouter from './routes/audit.js';
 import reportsRouter from './routes/reports.js';
 import settingsRouter from './routes/settings.js';
 import remindersRouter from './routes/reminders.js';
+import analyticsRouter from './routes/analytics.js';
+import slaRouter from './routes/sla.js';
+import backupRouter from './routes/backup.js';
+import monitoringRouter from './routes/monitoring.js';
+import scheduledReportsRouter from './routes/scheduled-reports.js';
 
 dotenv.config();
 
@@ -115,6 +120,11 @@ app.use('/api/audit', auditRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/reminders', remindersRouter);
+app.use('/api/analytics', analyticsRouter);
+app.use('/api/sla', slaRouter);
+app.use('/api/backup', backupRouter);
+app.use('/api/monitoring', monitoringRouter);
+app.use('/api/scheduled-reports', scheduledReportsRouter);
 
     // Serve index.html for all non-API routes (must be last)
     app.get('*', (req, res, next) => {

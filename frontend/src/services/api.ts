@@ -123,3 +123,72 @@ export const settingsApi = {
   sendMessage: (requestId: string, message: string, recipient: string) => 
     api.post('/settings/send-message', { requestId, message, recipient }),
 };
+
+// Analytics endpoints
+export const analyticsApi = {
+  getPerformance: (params?: { startDate?: string; endDate?: string }) =>
+    api.get('/analytics/performance', { params }),
+  getVolumeTrends: (params?: { period?: string; groupBy?: string }) =>
+    api.get('/analytics/volume-trends', { params }),
+  getBottlenecks: () => api.get('/analytics/bottlenecks'),
+  getForecast: (params?: { days?: string }) =>
+    api.get('/analytics/forecast', { params }),
+  getCustomReport: (data: {
+    filters?: any;
+    dateRange?: { startDate?: string; endDate?: string };
+    groupBy?: string;
+  }) => api.post('/analytics/custom-report', data),
+};
+
+// SLA endpoints
+export const slaApi = {
+  getMetrics: (params?: {
+    department?: string;
+    status?: string;
+    startDate?: string;
+    endDate?: string;
+  }) => api.get('/sla', { params }),
+  getCompliance: () => api.get('/sla/compliance'),
+  checkPending: () => api.post('/sla/check-pending'),
+};
+
+// Backup endpoints
+export const backupApi = {
+  create: (data?: { backupType?: string }) => api.post('/backup/create', data),
+  getAll: (params?: { status?: string; backupType?: string }) =>
+    api.get('/backup', { params }),
+  restore: (id: string) => api.post(`/backup/restore/${id}`),
+  delete: (id: string) => api.delete(`/backup/${id}`),
+  export: (data: { includeTypes?: string[] }) => api.post('/backup/export', data),
+  import: (data: { data: any }) => api.post('/backup/import', data),
+};
+
+// Monitoring endpoints
+export const monitoringApi = {
+  getHealth: () => api.get('/monitoring/health'),
+  getErrors: (params?: {
+    resolved?: string;
+    errorType?: string;
+    limit?: string;
+  }) => api.get('/monitoring/errors', { params }),
+  resolveError: (id: string) => api.post(`/monitoring/errors/${id}/resolve`),
+  getPerformance: (params?: { hours?: string }) =>
+    api.get('/monitoring/performance', { params }),
+};
+
+// Scheduled Reports endpoints
+export const scheduledReportsApi = {
+  getAll: () => api.get('/scheduled-reports'),
+  create: (data: {
+    name: string;
+    reportType: string;
+    frequency: string;
+    dayOfWeek?: number;
+    dayOfMonth?: number;
+    recipients: string[];
+    filters?: any;
+  }) => api.post('/scheduled-reports', data),
+  update: (id: string, data: any) => api.patch(`/scheduled-reports/${id}`, data),
+  delete: (id: string) => api.delete(`/scheduled-reports/${id}`),
+  run: (id: string) => api.post(`/scheduled-reports/${id}/run`),
+};

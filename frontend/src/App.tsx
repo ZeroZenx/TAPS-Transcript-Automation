@@ -19,6 +19,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { ImportPage } from './pages/ImportPage';
 import { AuditPage } from './pages/AuditPage';
 import { ReportsPage } from './pages/ReportsPage';
+import { AdvancedDashboardPage } from './pages/AdvancedDashboardPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,6 +63,7 @@ function App() {
                 <Route path="admin/import" element={<ProtectedRoute allowedRoles={['ADMIN']}><ImportPage /></ProtectedRoute>} />
                 <Route path="admin/audit" element={<ProtectedRoute allowedRoles={['ADMIN']}><AuditPage /></ProtectedRoute>} />
                 <Route path="admin/reports" element={<ProtectedRoute allowedRoles={['ADMIN']}><ReportsPage /></ProtectedRoute>} />
+                <Route path="admin/advanced" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdvancedDashboardPage /></ProtectedRoute>} />
                 <Route path="settings" element={<ProtectedRoute allowedRoles={['ADMIN']}><SettingsPage /></ProtectedRoute>} />
               </Route>
             </Routes>

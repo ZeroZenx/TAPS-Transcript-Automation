@@ -216,6 +216,15 @@ router.post('/', authenticateToken, requireRole('STUDENT'), async (req, res) => 
     }, user?.id, request.id);
     await triggerPowerAutomateWebhook('REQUEST_CREATED', { requestId: request.requestId || request.id, studentEmail });
 
+    // Create SLA metrics for Library and Bursar
+    const { createSLAMetric } = await import('./sla.js');
+    try {
+      await createSLAMetric(request.id, 'LIBRARY', 48);
+      await createSLAMetric(request.id, 'BURSAR', 48);
+    } catch (slaError) {
+      console.error('Error creating SLA metrics:', slaError);
+    }
+
     // Send immediate notifications to Library and Bursar
     const { sendLibraryQueueNotification, sendBursarQueueNotification } = await import('../lib/queueNotifications.js');
     try {
@@ -534,8 +543,18 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       requestId
     );
 
-    // Check if Library status changed - notify Bursar AND TAPS system email
+    // Check if Library status changed - notify Bursar AND TAPS system email, update SLA
     if (currentRequest.libraryStatus !== updatedRequest.libraryStatus) {
+      // Update SLA metric when Library completes
+      if (currentRequest.libraryStatus === 'PENDING' && updatedRequest.libraryStatus !== 'PENDING') {
+        try {
+          const { updateSLAMetric } = await import('./sla.js');
+          await updateSLAMetric(updatedRequest.id, 'LIBRARY', new Date());
+        } catch (slaError) {
+          console.error('Error updating Library SLA metric:', slaError);
+        }
+      }
+      
       // Notify Bursar when Library changes from PENDING
       if (currentRequest.libraryStatus === 'PENDING' && updatedRequest.libraryStatus !== 'PENDING') {
         try {
@@ -565,8 +584,18 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       }
     }
 
-    // Check if Bursar status changed - notify TAPS system email
+    // Check if Bursar status changed - notify TAPS system email, update SLA
     if (currentRequest.bursarStatus !== updatedRequest.bursarStatus) {
+      // Update SLA metric when Bursar completes
+      if (currentRequest.bursarStatus === 'PENDING' && updatedRequest.bursarStatus !== 'PENDING') {
+        try {
+          const { updateSLAMetric } = await import('./sla.js');
+          await updateSLAMetric(updatedRequest.id, 'BURSAR', new Date());
+        } catch (slaError) {
+          console.error('Error updating Bursar SLA metric:', slaError);
+        }
+      }
+      
       // Always notify TAPS system email of Bursar status changes
       try {
         const { sendBursarStatusChangeNotification } = await import('../lib/queueNotifications.js');
@@ -611,11 +640,15 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       }
     }
 
-    // Check if Library and Bursar have both confirmed, then notify Academic
+    // Check if Library and Bursar have both confirmed, then notify Academic and create Academic SLA
     if (updatedRequest.libraryStatus && updatedRequest.libraryStatus !== 'PENDING' &&
         updatedRequest.bursarStatus && updatedRequest.bursarStatus !== 'PENDING' &&
         updatedRequest.academicStatus === 'PENDING') {
       try {
+        // Create Academic SLA metric
+        const { createSLAMetric } = await import('./sla.js');
+        await createSLAMetric(updatedRequest.id, 'ACADEMIC', 48);
+        
         const { checkAndNotifyAcademic } = await import('../lib/queueNotifications.js');
         await checkAndNotifyAcademic(updatedRequest);
       } catch (emailError) {
@@ -624,15 +657,27 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       }
     }
 
-    // Check if Academic status changed to COMPLETED - notify Processor
-    if (currentRequest.academicStatus !== updatedRequest.academicStatus && 
-        updatedRequest.academicStatus === 'COMPLETED') {
-      try {
-        const { sendAcademicCompletedNotification } = await import('../lib/queueNotifications.js');
-        await sendAcademicCompletedNotification(updatedRequest);
-      } catch (emailError) {
-        console.error('Error sending Academic completed notification:', emailError);
-        // Don't fail the update if email fails
+    // Check if Academic status changed to COMPLETED - notify Processor, update SLA, create Processor SLA
+    if (currentRequest.academicStatus !== updatedRequest.academicStatus) {
+      // Update Academic SLA when completed
+      if (updatedRequest.academicStatus === 'COMPLETED') {
+        try {
+          const { updateSLAMetric, createSLAMetric } = await import('./sla.js');
+          await updateSLAMetric(updatedRequest.id, 'ACADEMIC', new Date());
+          await createSLAMetric(updatedRequest.id, 'PROCESSOR', 72); // 3 days for processor
+        } catch (slaError) {
+          console.error('Error updating Academic SLA metric:', slaError);
+        }
+      }
+      
+      if (updatedRequest.academicStatus === 'COMPLETED') {
+        try {
+          const { sendAcademicCompletedNotification } = await import('../lib/queueNotifications.js');
+          await sendAcademicCompletedNotification(updatedRequest);
+        } catch (emailError) {
+          console.error('Error sending Academic completed notification:', emailError);
+          // Don't fail the update if email fails
+        }
       }
     }
 
@@ -648,10 +693,14 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       }
     }
 
-    // Check if request status changed to COMPLETED - send completion email to student (CC TAPS)
+    // Check if request status changed to COMPLETED - send completion email to student (CC TAPS), update Processor SLA
     if (currentRequest.status !== updatedRequest.status && 
         updatedRequest.status === 'COMPLETED') {
       try {
+        // Update Processor SLA
+        const { updateSLAMetric } = await import('./sla.js');
+        await updateSLAMetric(updatedRequest.id, 'PROCESSOR', new Date());
+        
         const { sendCompletionNotification } = await import('../lib/queueNotifications.js');
         await sendCompletionNotification(updatedRequest);
       } catch (emailError) {
