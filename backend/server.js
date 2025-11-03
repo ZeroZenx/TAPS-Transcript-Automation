@@ -12,6 +12,7 @@ import authRouter from './routes/auth.js';
 import authLocalRouter from './routes/auth-local.js';
 import requestsRouter from './routes/requests.js';
 import adminRouter from './routes/admin.js';
+import importRouter from './routes/import.js';
 
 dotenv.config();
 
@@ -65,7 +66,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Serve frontend build - MUST BE BEFORE API ROUTES
-const frontendDist = path.join(__dirname, 'public');
+const frontendDist = path.join(__dirname, '../frontend/dist');
 
     // Serve static assets (CSS, JS, images, etc.)
     if (fs.existsSync(frontendDist)) {
@@ -105,6 +106,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/auth', authLocalRouter); // Local authentication routes
 app.use('/api/requests', requestsRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/import', importRouter);
 
     // Serve index.html for all non-API routes (must be last)
     app.get('*', (req, res, next) => {
@@ -128,7 +130,5 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 TAPS Server listening on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  if (process.env.NODE_ENV === 'production') {
-    console.log(`🌐 Serving frontend from: ${path.join(__dirname, 'public')}`);
-  }
+  console.log(`🌐 Serving frontend from: ${frontendDist}`);
 });

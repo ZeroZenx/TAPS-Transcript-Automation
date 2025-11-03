@@ -13,6 +13,7 @@ const STATUS_OPTIONS = [
   'All',
   'PENDING',
   'IN_REVIEW',
+  'In progress',
   'APPROVED',
   'REJECTED',
   'COMPLETED'
@@ -32,7 +33,10 @@ export function MyRequestsPage() {
 
   // Filter requests
   const filteredRequests = requests.filter((request: any) => {
-    const matchesStatus = statusFilter === 'All' || request.status === statusFilter;
+    // Normalize status for comparison
+    const normalizedStatus = request.status?.replace(/\s+/g, '_').toUpperCase() || '';
+    const normalizedFilter = statusFilter?.replace(/\s+/g, '_').toUpperCase() || '';
+    const matchesStatus = statusFilter === 'All' || request.status === statusFilter || normalizedStatus === normalizedFilter;
     const matchesSearch = searchQuery === '' || 
       request.program.toLowerCase().includes(searchQuery.toLowerCase()) ||
       request.studentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -150,7 +154,7 @@ export function MyRequestsPage() {
                       className="border-b hover:bg-accent transition-colors cursor-pointer"
                       onClick={() => navigate(`/requests/${request.id}`)}
                     >
-                      <td className="p-3 text-sm font-mono">{request.id.substring(0, 8)}...</td>
+                      <td className="p-3 text-sm font-mono">{request.requestId || request.id.substring(0, 8)}</td>
                       <td className="p-3 text-sm">{request.program}</td>
                       <td className="p-3">
                         <Badge variant={getStatusBadgeVariant(request.status)}>

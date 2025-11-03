@@ -15,7 +15,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
     let where = {};
 
-    // Role-based filtering
+    // Role-based filtering - ADMIN, VERIFIER, PROCESSOR see all requests
     if (req.user.role === 'STUDENT') {
       where.studentEmail = req.user.email;
     } else if (req.user.role === 'LIBRARY') {
@@ -25,6 +25,7 @@ router.get('/', authenticateToken, async (req, res) => {
     } else if (req.user.role === 'ACADEMIC') {
       where.academicStatus = 'PENDING';
     }
+    // ADMIN, VERIFIER, PROCESSOR see all requests (no where clause added)
 
     if (status) {
       where.status = status;
@@ -125,10 +126,10 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // Create new transcript request
 router.post('/', authenticateToken, requireRole('STUDENT'), async (req, res) => {
   try {
-    const { studentId, studentEmail, program, files } = req.body;
+    const { studentId, studentEmail, program, requestor, parchmentCode, requestDate, files } = req.body;
 
-    if (!studentId || !studentEmail || !program) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!studentId || !studentEmail || !requestor || !parchmentCode) {
+      return res.status(400).json({ error: 'Missing required fields: studentId, studentEmail, requestor, and parchmentCode are required' });
     }
 
     let filesUrl = null;
@@ -154,18 +155,36 @@ router.post('/', authenticateToken, requireRole('STUDENT'), async (req, res) => 
       where: { email: req.user.email },
     });
 
+    // Generate Request ID (8-digit format similar to Power App: e.g., 94870211)
+    const timestamp = Date.now();
+    const requestId = `${timestamp.toString().slice(-8)}`;
+
+    // Parse request date if provided, otherwise use current date
+    let parsedRequestDate = new Date();
+    if (requestDate) {
+      parsedRequestDate = new Date(requestDate);
+      if (isNaN(parsedRequestDate.getTime())) {
+        parsedRequestDate = new Date();
+      }
+    }
+
     // Create request
     const request = await prisma.request.create({
       data: {
+        requestId,
         studentId,
         studentEmail,
-        program,
+        program: program || null,
+        requestor,
+        parchmentCode,
+        requestDate: parsedRequestDate,
         filesUrl,
         userId: user?.id,
-        status: 'PENDING',
+        status: 'NEW',
         academicStatus: 'PENDING',
         libraryStatus: 'PENDING',
         bursarStatus: 'PENDING',
+        createdBy: user?.name || requestor,
       },
       include: {
         user: {
@@ -174,8 +193,8 @@ router.post('/', authenticateToken, requireRole('STUDENT'), async (req, res) => 
       },
     });
 
-    await createAuditLog('REQUEST_CREATED', { requestId: request.id }, user?.id, request.id);
-    await triggerPowerAutomateWebhook('REQUEST_CREATED', { requestId: request.id, studentEmail });
+    await createAuditLog('REQUEST_CREATED', { requestId: request.requestId || request.id }, user?.id, request.id);
+    await triggerPowerAutomateWebhook('REQUEST_CREATED', { requestId: request.requestId || request.id, studentEmail });
 
     res.status(201).json({ request });
   } catch (error) {
@@ -208,51 +227,215 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     const auditDetails = {};
 
     // Role-based updates
-    if (req.user.role === 'ACADEMIC' && academicStatus !== undefined) {
-      updateData.academicStatus = academicStatus;
-      auditDetails.academicStatus = academicStatus;
-      if (notes) {
+    if (req.user.role === 'ACADEMIC') {
+      if (academicStatus !== undefined) {
+        updateData.academicStatus = academicStatus;
+        auditDetails.academicStatus = academicStatus;
+      }
+      if (notes !== undefined) {
         updateData.academicNote = notes;
         auditDetails.academicNote = notes;
       }
+      // Handle new Academic-specific fields
+      if (req.body.responsibleDeptForAcademicIssues !== undefined) {
+        updateData.responsibleDeptForAcademicIssues = req.body.responsibleDeptForAcademicIssues;
+        auditDetails.responsibleDeptForAcademicIssues = req.body.responsibleDeptForAcademicIssues;
+      }
+      if (req.body.academicVerifierComments !== undefined) {
+        updateData.academicVerifierComments = req.body.academicVerifierComments;
+        auditDetails.academicVerifierComments = req.body.academicVerifierComments;
+      }
+      if (req.body.academicCorrectionAddressed !== undefined) {
+        updateData.academicCorrectionAddressed = req.body.academicCorrectionAddressed;
+        auditDetails.academicCorrectionAddressed = req.body.academicCorrectionAddressed;
+      }
+      if (req.body.academicCorrectionComments !== undefined) {
+        updateData.academicCorrectionComments = req.body.academicCorrectionComments;
+        auditDetails.academicCorrectionComments = req.body.academicCorrectionComments;
+      }
+      // Handle academicHistory as well (synonym for academicStatus)
+      if (req.body.academicHistory !== undefined) {
+        updateData.academicHistory = req.body.academicHistory;
+        auditDetails.academicHistory = req.body.academicHistory;
+        // Also set academicStatus if not already set
+        if (!academicStatus) {
+          updateData.academicStatus = req.body.academicHistory;
+          auditDetails.academicStatus = req.body.academicHistory;
+        }
+      }
     }
 
-    if (req.user.role === 'LIBRARY' && libraryStatus !== undefined) {
-      updateData.libraryStatus = libraryStatus;
-      auditDetails.libraryStatus = libraryStatus;
-      if (notes) {
+    if (req.user.role === 'LIBRARY') {
+      if (libraryStatus !== undefined) {
+        updateData.libraryStatus = libraryStatus;
+        auditDetails.libraryStatus = libraryStatus;
+      }
+      if (notes !== undefined) {
         updateData.libraryNote = notes;
         auditDetails.libraryNote = notes;
       }
-    }
-
-    if (req.user.role === 'BURSAR' && bursarStatus !== undefined) {
-      updateData.bursarStatus = bursarStatus;
-      auditDetails.bursarStatus = bursarStatus;
-      if (notes) {
-        updateData.bursarNote = notes;
-        auditDetails.bursarNote = notes;
+      // Handle new Library-specific fields
+      if (req.body.libraryDeptDueAmount !== undefined) {
+        updateData.libraryDeptDueAmount = req.body.libraryDeptDueAmount;
+        auditDetails.libraryDeptDueAmount = req.body.libraryDeptDueAmount;
+      }
+      if (req.body.libraryDeptDueDetails !== undefined) {
+        updateData.libraryDeptDueDetails = req.body.libraryDeptDueDetails;
+        auditDetails.libraryDeptDueDetails = req.body.libraryDeptDueDetails;
       }
     }
 
-    if (req.user.role === 'VERIFIER' && verifierNotes !== undefined) {
-      updateData.verifierNotes = verifierNotes;
-      auditDetails.verifierNotes = verifierNotes;
+    if (req.user.role === 'BURSAR') {
+      if (bursarStatus !== undefined) {
+        updateData.bursarStatus = bursarStatus;
+        auditDetails.bursarStatus = bursarStatus;
+      }
+      if (notes !== undefined) {
+        updateData.bursarNote = notes;
+        auditDetails.bursarNote = notes;
+      }
+      // Handle new Bursar-specific fields
+      if (req.body.officeOfBursarDueAmount !== undefined) {
+        updateData.officeOfBursarDueAmount = req.body.officeOfBursarDueAmount;
+        auditDetails.officeOfBursarDueAmount = req.body.officeOfBursarDueAmount;
+      }
+      if (req.body.officeOfBursarDueDetails !== undefined) {
+        updateData.officeOfBursarDueDetails = req.body.officeOfBursarDueDetails;
+        auditDetails.officeOfBursarDueDetails = req.body.officeOfBursarDueDetails;
+      }
+      if (req.body.bursarsConfirmationForLibraryDuePayment !== undefined) {
+        updateData.bursarsConfirmationForLibraryDuePayment = req.body.bursarsConfirmationForLibraryDuePayment;
+        auditDetails.bursarsConfirmationForLibraryDuePayment = req.body.bursarsConfirmationForLibraryDuePayment;
+      }
     }
 
-    if (req.user.role === 'VERIFIER' && status !== undefined) {
-      updateData.status = status;
-      auditDetails.status = status;
+    if (req.user.role === 'VERIFIER') {
+      if (verifierNotes !== undefined) {
+        updateData.verifierNotes = verifierNotes;
+        auditDetails.verifierNotes = verifierNotes;
+      }
+      if (status !== undefined) {
+        updateData.status = status;
+        auditDetails.status = status;
+      }
+      // Handle Verifier-specific fields (same as Academic but from Verifier role)
+      if (req.body.academicHistory !== undefined) {
+        updateData.academicHistory = req.body.academicHistory;
+        auditDetails.academicHistory = req.body.academicHistory;
+      }
+      if (req.body.responsibleDeptForAcademicIssues !== undefined) {
+        updateData.responsibleDeptForAcademicIssues = req.body.responsibleDeptForAcademicIssues;
+        auditDetails.responsibleDeptForAcademicIssues = req.body.responsibleDeptForAcademicIssues;
+      }
+      if (req.body.academicVerifierComments !== undefined) {
+        updateData.academicVerifierComments = req.body.academicVerifierComments;
+        auditDetails.academicVerifierComments = req.body.academicVerifierComments;
+        // Also update verifierNotes for compatibility
+        updateData.verifierNotes = req.body.academicVerifierComments;
+      }
+      if (req.body.academicCorrectionAddressed !== undefined) {
+        updateData.academicCorrectionAddressed = req.body.academicCorrectionAddressed;
+        auditDetails.academicCorrectionAddressed = req.body.academicCorrectionAddressed;
+      }
+      if (req.body.academicCorrectionComments !== undefined) {
+        updateData.academicCorrectionComments = req.body.academicCorrectionComments;
+        auditDetails.academicCorrectionComments = req.body.academicCorrectionComments;
+      }
+      // Handle request detail fields
+      if (req.body.gpaRecalculation !== undefined) {
+        updateData.gpaRecalculation = req.body.gpaRecalculation;
+        auditDetails.gpaRecalculation = req.body.gpaRecalculation;
+      }
+      if (req.body.changeOfProgramme !== undefined) {
+        updateData.changeOfProgramme = req.body.changeOfProgramme;
+        auditDetails.changeOfProgramme = req.body.changeOfProgramme;
+      }
+      if (req.body.degreeToBeAwarded !== undefined) {
+        updateData.degreeToBeAwarded = req.body.degreeToBeAwarded;
+        auditDetails.degreeToBeAwarded = req.body.degreeToBeAwarded;
+      }
+      if (req.body.inProgressCoursesForPriorSemester !== undefined) {
+        updateData.inProgressCoursesForPriorSemester = req.body.inProgressCoursesForPriorSemester;
+        auditDetails.inProgressCoursesForPriorSemester = req.body.inProgressCoursesForPriorSemester;
+      }
+      if (req.body.transcriptTemplateIssue !== undefined) {
+        updateData.transcriptTemplateIssue = req.body.transcriptTemplateIssue;
+        auditDetails.transcriptTemplateIssue = req.body.transcriptTemplateIssue;
+      }
+      if (req.body.addressFormat !== undefined) {
+        updateData.addressFormat = req.body.addressFormat;
+        auditDetails.addressFormat = req.body.addressFormat;
+      }
+      if (req.body.other !== undefined) {
+        updateData.other = req.body.other;
+        auditDetails.other = req.body.other;
+      }
     }
 
-    if (req.user.role === 'PROCESSOR' && processorNotes !== undefined) {
-      updateData.processorNotes = processorNotes;
-      auditDetails.processorNotes = processorNotes;
+    if (req.user.role === 'PROCESSOR') {
+      if (processorNotes !== undefined) {
+        updateData.processorNotes = processorNotes;
+        auditDetails.processorNotes = processorNotes;
+      }
+      if (status !== undefined) {
+        updateData.status = status;
+        auditDetails.status = status;
+      }
+      // Handle request detail fields that Processor can update
+      if (req.body.gpaRecalculation !== undefined) {
+        updateData.gpaRecalculation = req.body.gpaRecalculation;
+        auditDetails.gpaRecalculation = req.body.gpaRecalculation;
+      }
+      if (req.body.changeOfProgramme !== undefined) {
+        updateData.changeOfProgramme = req.body.changeOfProgramme;
+        auditDetails.changeOfProgramme = req.body.changeOfProgramme;
+      }
+      if (req.body.degreeToBeAwarded !== undefined) {
+        updateData.degreeToBeAwarded = req.body.degreeToBeAwarded;
+        auditDetails.degreeToBeAwarded = req.body.degreeToBeAwarded;
+      }
+      if (req.body.inProgressCoursesForPriorSemester !== undefined) {
+        updateData.inProgressCoursesForPriorSemester = req.body.inProgressCoursesForPriorSemester;
+        auditDetails.inProgressCoursesForPriorSemester = req.body.inProgressCoursesForPriorSemester;
+      }
+      if (req.body.transcriptTemplateIssue !== undefined) {
+        updateData.transcriptTemplateIssue = req.body.transcriptTemplateIssue;
+        auditDetails.transcriptTemplateIssue = req.body.transcriptTemplateIssue;
+      }
+      if (req.body.addressFormat !== undefined) {
+        updateData.addressFormat = req.body.addressFormat;
+        auditDetails.addressFormat = req.body.addressFormat;
+      }
+      if (req.body.other !== undefined) {
+        updateData.other = req.body.other;
+        auditDetails.other = req.body.other;
+      }
     }
 
-    if (status !== undefined && (req.user.role === 'PROCESSOR' || req.user.role === 'ADMIN')) {
-      updateData.status = status;
-      auditDetails.status = status;
+    // ADMIN can update everything
+    if (req.user.role === 'ADMIN') {
+      if (status !== undefined) {
+        updateData.status = status;
+        auditDetails.status = status;
+      }
+      // Allow admin to update any field
+      const adminUpdatableFields = [
+        'gpaRecalculation', 'changeOfProgramme', 'degreeToBeAwarded',
+        'inProgressCoursesForPriorSemester', 'transcriptTemplateIssue',
+        'addressFormat', 'other',
+        'academicHistory', 'academicStatus', 'responsibleDeptForAcademicIssues',
+        'academicVerifierComments', 'academicCorrectionAddressed', 'academicCorrectionComments',
+        'libraryStatus', 'libraryDeptDueAmount', 'libraryDeptDueDetails', 'libraryNote',
+        'bursarStatus', 'officeOfBursarDueAmount', 'officeOfBursarDueDetails',
+        'bursarsConfirmationForLibraryDuePayment', 'bursarNote'
+      ];
+      
+      adminUpdatableFields.forEach(field => {
+        if (req.body[field] !== undefined) {
+          updateData[field] = req.body[field];
+          auditDetails[field] = req.body[field];
+        }
+      });
     }
 
     // Update request

@@ -10,6 +10,12 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { formatDate } from '../lib/utils';
 import { AuditTimeline } from '../components/AuditTimeline';
+import { BursarFormView } from '../components/BursarFormView';
+import { AcademicFormView } from '../components/AcademicFormView';
+import { LibraryFormView } from '../components/LibraryFormView';
+import { VerifierFormView } from '../components/VerifierFormView';
+import { ProcessorFormView } from '../components/ProcessorFormView';
+import { AdminFormView } from '../components/AdminFormView';
 import { ArrowLeft, FileText, Download, Upload } from 'lucide-react';
 
 export function RequestDetailPage() {
@@ -18,7 +24,13 @@ export function RequestDetailPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const role = user?.role || 'STUDENT';
+  // Normalize role to uppercase for consistent comparison
+  const role = user?.role ? user.role.toUpperCase().trim() : 'STUDENT';
+  
+  // Debug log to see what role we have
+  useEffect(() => {
+    console.log('RequestDetailPage - User role:', role, 'User object:', user, 'Raw role:', user?.role);
+  }, [role, user]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['requests', id],
@@ -196,6 +208,151 @@ export function RequestDetailPage() {
 
   // Determine if this is read-only (Student view) or editable
   const isReadOnly = role === 'STUDENT';
+
+  // Show Bursar-specific form view if user is BURSAR
+  if (role === 'BURSAR') {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Button variant="outline" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <h1 className="text-2xl font-bold mt-4">Office of Bursar View</h1>
+          </div>
+          <Badge variant={getStatusBadgeVariant(request.status)}>
+            {request.status.replace('_', ' ')}
+          </Badge>
+        </div>
+        <BursarFormView request={request} requestId={id!} />
+      </div>
+    );
+  }
+
+  // Show Academic-specific form view if user is ACADEMIC
+  if (role === 'ACADEMIC') {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Button variant="outline" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <h1 className="text-2xl font-bold mt-4">Academic Dept Edit Form</h1>
+          </div>
+          <Badge variant={getStatusBadgeVariant(request.status)}>
+            {request.status.replace('_', ' ')}
+          </Badge>
+        </div>
+        <AcademicFormView request={request} requestId={id!} />
+      </div>
+    );
+  }
+
+  // Show Library-specific form view if user is LIBRARY
+  if (role === 'LIBRARY') {
+    console.log('✅ Rendering LibraryFormView for role:', role, 'request:', request);
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Button variant="outline" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <h1 className="text-2xl font-bold mt-4">Library Dept View</h1>
+          </div>
+          <Badge variant={getStatusBadgeVariant(request.status)}>
+            {request.status.replace('_', ' ')}
+          </Badge>
+        </div>
+        <LibraryFormView request={request} requestId={id!} />
+      </div>
+    );
+  }
+  
+  // Debug: Log what role we have if not LIBRARY
+  if (user && user.role) {
+    console.log('⚠️ Role check - Current role:', role, 'Expected: LIBRARY', 'Match:', role === 'LIBRARY', 'User object:', user);
+  }
+
+  // Show Verifier-specific form view if user is VERIFIER
+  if (role === 'VERIFIER') {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Button variant="outline" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <h1 className="text-2xl font-bold mt-4">Transcript Verifier View</h1>
+          </div>
+          <Badge variant={getStatusBadgeVariant(request.status)}>
+            {request.status.replace('_', ' ')}
+          </Badge>
+        </div>
+        <VerifierFormView request={request} requestId={id!} />
+      </div>
+    );
+  }
+
+  // Show Processor-specific form view if user is PROCESSOR
+  if (role === 'PROCESSOR') {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Button variant="outline" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <h1 className="text-2xl font-bold mt-4">Transcript Processor View</h1>
+          </div>
+          <Badge variant={getStatusBadgeVariant(request.status)}>
+            {request.status.replace('_', ' ')}
+          </Badge>
+        </div>
+        <ProcessorFormView request={request} requestId={id!} />
+      </div>
+    );
+  }
+
+  // Show Admin comprehensive view if user is ADMIN - can see and edit everything
+  if (role === 'ADMIN') {
+    console.log('✅ Rendering AdminFormView for role:', role);
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Button variant="outline" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <h1 className="text-2xl font-bold mt-4">Admin Request Management</h1>
+          </div>
+          <Badge variant={getStatusBadgeVariant(request.status)}>
+            {request.status.replace('_', ' ')}
+          </Badge>
+        </div>
+        <AdminFormView request={request} requestId={id!} />
+      </div>
+    );
+  }
+  
+  // Debug: Log all role checks
+  console.log('🔍 Role check order:', {
+    role,
+    isBURSAR: role === 'BURSAR',
+    isACADEMIC: role === 'ACADEMIC',
+    isLIBRARY: role === 'LIBRARY',
+    isVERIFIER: role === 'VERIFIER',
+    isPROCESSOR: role === 'PROCESSOR',
+    isADMIN: role === 'ADMIN',
+    userObject: user
+  });
 
   return (
     <div className="space-y-6">

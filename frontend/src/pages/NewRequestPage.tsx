@@ -15,7 +15,10 @@ import { Upload, X, FileText } from 'lucide-react';
 const requestSchema = z.object({
   studentId: z.string().min(1, 'Student ID is required'),
   studentEmail: z.string().email('Valid email is required'),
-  program: z.string().min(1, 'Program is required'),
+  requestor: z.string().min(1, 'Requestor is required'),
+  parchmentCode: z.string().min(1, 'Parchment Code is required'),
+  requestDate: z.string().min(1, 'Date of Request is required'),
+  program: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -42,10 +45,26 @@ export function NewRequestPage() {
   const queryClient = useQueryClient();
   const [files, setFiles] = useState<File[]>([]);
 
+  // Generate Request ID (8-digit format)
+  const generateRequestId = () => {
+    const timestamp = Date.now();
+    return timestamp.toString().slice(-8);
+  };
+
+  const [requestId] = useState(generateRequestId());
+
   const { register, handleSubmit, formState: { errors } } = useForm<RequestFormData>({
     resolver: zodResolver(requestSchema),
     defaultValues: {
       studentEmail: user?.email || '',
+      requestor: user?.name || '',
+      requestDate: (() => {
+        const today = new Date();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const year = today.getFullYear();
+        return `${month}/${day}/${year}`;
+      })(),
     },
   });
 
@@ -64,8 +83,15 @@ export function NewRequestPage() {
 
       const fileData = await Promise.all(filePromises);
 
+      // Convert MM/DD/YYYY to ISO date string
+      const parseDate = (dateStr: string) => {
+        const [month, day, year] = dateStr.split('/');
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).toISOString();
+      };
+
       return requestsApi.create({
         ...data,
+        requestDate: parseDate(data.requestDate),
         files: fileData,
       });
     },
@@ -143,10 +169,12 @@ export function NewRequestPage() {
 
   return (
     <div className="space-y-6">
+      <div className="bg-orange-600 text-white px-6 py-3 rounded-t-md">
+        <h1 className="text-2xl font-bold">New Transcript Request</h1>
+      </div>
       <div>
-        <h1 className="text-3xl font-bold">Submit Request</h1>
         <p className="text-muted-foreground mt-2">
-          File a transcript request
+          Complete the form below to submit a new transcript request
         </p>
       </div>
 
@@ -159,6 +187,21 @@ export function NewRequestPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-2">
+                <label htmlFor="requestId" className="text-sm font-medium">
+                  Request ID
+                </label>
+                <Input
+                  id="requestId"
+                  value={requestId}
+                  readOnly
+                  className="bg-muted"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Auto-generated request ID
+                </p>
+              </div>
+
               <div className="space-y-2">
                 <label htmlFor="studentId" className="text-sm font-medium">
                   Student ID *
@@ -174,8 +217,56 @@ export function NewRequestPage() {
               </div>
 
               <div className="space-y-2">
+                <label htmlFor="requestDate" className="text-sm font-medium">
+                  Date of Request *
+                </label>
+                <div className="relative">
+                  <Input
+                    id="requestDate"
+                    type="text"
+                    {...register('requestDate')}
+                    placeholder="MM/DD/YYYY"
+                  />
+                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                    📅
+                  </span>
+                </div>
+                {errors.requestDate && (
+                  <p className="text-sm text-destructive">{errors.requestDate.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="parchmentCode" className="text-sm font-medium">
+                  Parchment Code *
+                </label>
+                <Input
+                  id="parchmentCode"
+                  {...register('parchmentCode')}
+                  placeholder="Enter parchment code"
+                />
+                {errors.parchmentCode && (
+                  <p className="text-sm text-destructive">{errors.parchmentCode.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="requestor" className="text-sm font-medium">
+                  Requestor *
+                </label>
+                <Input
+                  id="requestor"
+                  {...register('requestor')}
+                  placeholder="Enter requestor name"
+                />
+                {errors.requestor && (
+                  <p className="text-sm text-destructive">{errors.requestor.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
                 <label htmlFor="studentEmail" className="text-sm font-medium">
-                  Student Email *
+                  Email Address *
                 </label>
                 <Input
                   id="studentEmail"
@@ -191,14 +282,14 @@ export function NewRequestPage() {
 
               <div className="space-y-2">
                 <label htmlFor="program" className="text-sm font-medium">
-                  Program *
+                  Program
                 </label>
                 <select
                   id="program"
                   {...register('program')}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
-                  <option value="">Select a program</option>
+                  <option value="">Select a program (optional)</option>
                   {PROGRAMS.map((program) => (
                     <option key={program} value={program}>
                       {program}
@@ -242,9 +333,9 @@ export function NewRequestPage() {
         {/* Right Column: File Upload */}
         <Card>
           <CardHeader>
-            <CardTitle>Supporting Documents</CardTitle>
+            <CardTitle>Attachments</CardTitle>
             <CardDescription>
-              Upload files (PDF, JPG, PNG, DOCX) - Maximum {MAX_FILES} files
+              Upload supporting documents (PDF, JPG, PNG, DOCX) - Maximum {MAX_FILES} files
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -254,7 +345,7 @@ export function NewRequestPage() {
                 className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-input rounded-md cursor-pointer hover:bg-accent transition-colors"
               >
                 <Upload className="h-5 w-5" />
-                <span className="text-sm font-medium">Upload Files</span>
+                <span className="text-sm font-medium">Attach file</span>
               </label>
               <input
                 id="file-upload"
@@ -306,8 +397,7 @@ export function NewRequestPage() {
             {files.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No files uploaded</p>
-                <p className="text-xs mt-1">Files are optional</p>
+                <p className="text-sm">There is nothing attached.</p>
               </div>
             )}
           </CardContent>

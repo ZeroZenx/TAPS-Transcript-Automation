@@ -64,3 +64,13 @@ export const adminApi = {
     api.patch(`/admin/users/${id}/role`, { role }),
   getStats: () => api.get('/admin/stats'),
 };
+
+// Import endpoints
+export const importApi = {
+  importTSV: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    // Don't set Content-Type - let axios set it with boundary for multipart/form-data
+    return api.post('/import/tsv', formData);
+  },
+};

@@ -16,6 +16,7 @@ import { ProcessorPage } from './pages/ProcessorPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
 import { RequestDetailPage } from './pages/RequestDetailPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { ImportPage } from './pages/ImportPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,6 +57,7 @@ function App() {
                 <Route path="queue/academic" element={<ProtectedRoute allowedRoles={['ACADEMIC', 'ADMIN']}><QueuePage queueType="academic" /></ProtectedRoute>} />
                 <Route path="processor" element={<ProtectedRoute allowedRoles={['PROCESSOR', 'ADMIN']}><ProcessorPage /></ProtectedRoute>} />
                 <Route path="admin/users" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminUsersPage /></ProtectedRoute>} />
+                <Route path="admin/import" element={<ProtectedRoute allowedRoles={['ADMIN']}><ImportPage /></ProtectedRoute>} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
             </Routes>

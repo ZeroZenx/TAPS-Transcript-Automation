@@ -15,11 +15,26 @@ export function Header({ userName, userEmail }: HeaderProps) {
 
   const handleLogout = async () => {
     try {
-      await instance.logoutPopup();
+      // Clear all session data
       sessionStorage.clear();
-      navigate('/login');
+      
+      // Try Azure AD logout (may fail if not logged in via Azure)
+      try {
+        await instance.logoutPopup();
+      } catch (azureError) {
+        // Not logged in via Azure, that's fine
+        console.log('Not logged in via Azure AD');
+      }
+      
+      // Navigate to login
+      navigate('/login', { replace: true });
+      window.location.href = '/login';
     } catch (error) {
       console.error('Logout error:', error);
+      // Still clear and navigate even if there's an error
+      sessionStorage.clear();
+      navigate('/login', { replace: true });
+      window.location.href = '/login';
     }
   };
 

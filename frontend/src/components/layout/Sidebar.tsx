@@ -9,7 +9,8 @@ import {
   GraduationCap,
   UserCheck,
   Settings,
-  Users
+  Users,
+  Upload
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -30,7 +31,8 @@ const navItems: NavItem[] = [
   { title: 'Academic Queue', href: '/queue/academic', icon: GraduationCap, roles: ['ACADEMIC', 'ADMIN'] },
   { title: 'Processor', href: '/processor', icon: CheckSquare, roles: ['PROCESSOR', 'ADMIN'] },
   { title: 'User Management', href: '/admin/users', icon: Users, roles: ['ADMIN'] },
-  { title: 'Settings', href: '/settings', icon: Settings, roles: ['STUDENT', 'LIBRARY', 'BURSAR', 'ACADEMIC', 'VERIFIER', 'PROCESSOR', 'ADMIN'] },
+  { title: 'Import Data', href: '/admin/import', icon: Upload, roles: ['ADMIN'] },
+  { title: 'Settings', href: '/settings', icon: Settings, roles: ['STUDENT', 'VERIFIER', 'PROCESSOR', 'ADMIN'] },
 ];
 
 interface SidebarProps {

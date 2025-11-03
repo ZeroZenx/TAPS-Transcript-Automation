@@ -39,24 +39,76 @@ export function LoginPage() {
     }
   };
 
-  const handleLocalLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDemoLogin = async (role: 'admin' | 'library' | 'bursar' | 'academic' = 'admin') => {
+    setLoading(true);
+    setLoginMethod('local');
+    
+    try {
+      const demoAccounts = {
+        admin: { email: 'admin@example.com', password: 'demo123' },
+        library: { email: 'library@example.com', password: 'demo123' },
+        bursar: { email: 'bursar@example.com', password: 'demo123' },
+        academic: { email: 'academic@example.com', password: 'demo123' },
+      };
+      
+      const { email: demoEmail, password: demoPassword } = demoAccounts[role];
+      
+      // Call local login endpoint using the API service
+      const response = await authApi.loginLocal({
+        email: demoEmail,
+        password: demoPassword,
+      });
+
+      const data = response.data;
+      
+      // Store authentication data
+      sessionStorage.setItem('auth_token', data.token);
+      sessionStorage.setItem('user_info', JSON.stringify(data.user));
+
+      // Update auth context immediately
+      if (data.user) {
+        console.log('Login - User data:', data.user);
+        window.dispatchEvent(new Event('userLogin'));
+        window.dispatchEvent(new Event('storage'));
+      }
+
+      toast({
+        title: 'Success',
+        description: 'Logged in successfully with demo account',
+      });
+
+      // Navigate to dashboard
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+        window.location.href = '/dashboard';
+      }, 100);
+    } catch (error: any) {
+      toast({
+        title: 'Login Failed',
+        description: error.message || 'Invalid credentials',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLocalLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setLoading(true);
 
     try {
-      // Call local login endpoint
-      const localResponse = await fetch('/api/auth/login-local', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      // Use the current email/password state (or fallback to demo credentials)
+      const loginEmail = email || 'admin@example.com';
+      const loginPassword = password || 'demo123';
+      
+      // Call local login endpoint using the API service
+      const response = await authApi.loginLocal({
+        email: loginEmail,
+        password: loginPassword,
       });
 
-      if (!localResponse.ok) {
-        const error = await localResponse.json();
-        throw new Error(error.error || 'Login failed');
-      }
-
-      const data = await localResponse.json();
+      const data = response.data;
       
       // Store authentication data
       sessionStorage.setItem('auth_token', data.token);
@@ -133,6 +185,41 @@ export function LoginPage() {
               <Button onClick={handleAzureLogin} className="w-full" size="lg">
                 Sign in with Microsoft
               </Button>
+              <div className="pt-2 border-t space-y-2">
+                <p className="text-xs font-medium text-center text-muted-foreground mb-2">Quick Demo Logins:</p>
+                <Button
+                  type="button"
+                  onClick={() => handleDemoLogin('admin')}
+                  variant="outline"
+                  className="w-full"
+                >
+                  👤 Admin Login
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => handleDemoLogin('library')}
+                  variant="outline"
+                  className="w-full bg-purple-50 hover:bg-purple-100 border-purple-200"
+                >
+                  📚 Library Login
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => handleDemoLogin('bursar')}
+                  variant="outline"
+                  className="w-full bg-green-50 hover:bg-green-100 border-green-200"
+                >
+                  💰 Bursar Login
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => handleDemoLogin('academic')}
+                  variant="outline"
+                  className="w-full bg-blue-50 hover:bg-blue-100 border-blue-200"
+                >
+                  🎓 Academic Login
+                </Button>
+              </div>
               <p className="text-xs text-center text-muted-foreground">
                 Microsoft 365 unavailable?{' '}
                 <button
@@ -174,24 +261,63 @@ export function LoginPage() {
               <Button type="submit" className="w-full" size="lg" disabled={loading}>
                 {loading ? 'Signing in...' : 'Sign In'}
               </Button>
-              <p className="text-xs text-center text-muted-foreground">
-                Need an account?{' '}
-                <button
+              <div className="pt-2 border-t space-y-2">
+                <p className="text-xs font-medium text-center text-muted-foreground mb-2">Quick Demo Logins:</p>
+                <Button
                   type="button"
-                  onClick={() => navigate('/register')}
-                  className="text-primary hover:underline"
+                  onClick={() => handleDemoLogin('admin')}
+                  variant="outline"
+                  className="w-full"
+                  disabled={loading}
                 >
-                  Register here
-                </button>
-                {' '}or{' '}
-                <button
+                  👤 Admin Login
+                </Button>
+                <Button
                   type="button"
-                  onClick={() => setLoginMethod('azure')}
-                  className="text-primary hover:underline"
+                  onClick={() => handleDemoLogin('library')}
+                  variant="outline"
+                  className="w-full bg-purple-50 hover:bg-purple-100 border-purple-200"
+                  disabled={loading}
                 >
-                  Use Microsoft 365
-                </button>
-              </p>
+                  📚 Library Login
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => handleDemoLogin('bursar')}
+                  variant="outline"
+                  className="w-full bg-green-50 hover:bg-green-100 border-green-200"
+                  disabled={loading}
+                >
+                  💰 Bursar Login
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => handleDemoLogin('academic')}
+                  variant="outline"
+                  className="w-full bg-blue-50 hover:bg-blue-100 border-blue-200"
+                  disabled={loading}
+                >
+                  🎓 Academic Login
+                </Button>
+                <p className="text-xs text-center text-muted-foreground mt-3">
+                  Need an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => navigate('/register')}
+                    className="text-primary hover:underline"
+                  >
+                    Register here
+                  </button>
+                  {' '}or{' '}
+                  <button
+                    type="button"
+                    onClick={() => setLoginMethod('azure')}
+                    className="text-primary hover:underline"
+                  >
+                    Use Microsoft 365
+                  </button>
+                </p>
+              </div>
             </form>
           )}
         </CardContent>

@@ -5,33 +5,15 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-
-enum Role {
-  STUDENT
-  LIBRARY
-  BURSAR
-  ACADEMIC
-  VERIFIER
-  PROCESSOR
-  ADMIN
-}
-
-enum RequestStatus {
-  PENDING
-  IN_REVIEW
-  APPROVED
-  REJECTED
-  COMPLETED
 }
 
 model User {
   id             String   @id @default(uuid())
   email          String   @unique
   name           String
-  role           Role     @default(STUDENT)
+  role           String   @default("STUDENT") // STUDENT, LIBRARY, BURSAR, ACADEMIC, VERIFIER, PROCESSOR, ADMIN
   passwordHash   String?  // For local authentication
   authMethod     String   @default("AZURE") // AZURE or LOCAL
   createdAt      DateTime @default(now())
@@ -41,22 +23,101 @@ model User {
 }
 
 model Request {
-  id             String         @id @default(uuid())
+  id             String   @id @default(uuid())
+  title          String?
+  requestId      String?  @unique // External request ID
   studentId      String
   studentEmail   String
   program        String
-  requestDate    DateTime       @default(now())
-  status         RequestStatus  @default(PENDING)
+  requestDate    DateTime @default(now())
+  status         String   @default("PENDING") // PENDING, IN_REVIEW, APPROVED, REJECTED, COMPLETED, CANCELLED, NEW
+  idValue        String?  // Id_Value field
+  requestor      String?  // Requestor name
+  
+  // Academic fields
   academicStatus String?
   academicNote   String?
+  academicHistory String?
+  academicVerifierComments String?
+  academicCorrectionAddressed String? // TRUE/FALSE
+  academicCorrectionComments String?
+  responsibleDeptForAcademicIssues String?
+  academicDeptFirstReminder DateTime?
+  academicDeptSecondReminder DateTime?
+  academicDeptThirdReminder DateTime?
+  academicDeptFourthReminder DateTime?
+  
+  // Library fields
   libraryStatus  String?
   libraryNote    String?
+  libraryDeptDueAmount String?
+  libraryDeptDueDetails String?
+  bursarsConfirmationForLibraryDuePayment String? // TRUE/FALSE
+  
+  // Bursar fields
   bursarStatus   String?
   bursarNote     String?
+  officeOfBursarDueAmount String?
+  officeOfBursarDueDetails String?
+  
+  // Request details
+  gpaRecalculation String?
+  changeOfProgramme String?
+  addressFormat String?
+  honourToBeEntered String?
+  degreeToBeAwarded String?
+  inProgressCoursesForPriorSemester String?
+  transcriptTemplateIssue String?
+  other String?
+  
+  // Financial
+  totalDue String?
+  
+  // Notifications
+  sendNotification String? // TRUE/FALSE
+  sendAcademicHistoryNotification String? // TRUE/FALSE
+  sendAutomaticNotificationForPendingAcademic String? // TRUE/FALSE
+  sendAutomaticNotificationForPendingDue String? // TRUE/FALSE
+  sendDuePendingNotification String? // TRUE/FALSE
+  sendAcademicCorrectionMadeNotification String? // TRUE/FALSE
+  sendToTranscriptVerifier String? // TRUE/FALSE
+  
+  // Notification dates
+  assistantRegistrarNotificationDate DateTime?
+  deanRegistrarNotificationDate DateTime?
+  vpAcademicAffairsAndRegistrarNotificationDate DateTime?
+  requestCancellationNotificationDate DateTime?
+  pendingDueFirstReminderDate DateTime?
+  pendingDueFinalReminderDate DateTime?
+  pendingDueRequestCancellationReminder DateTime?
+  
+  // Cancellation
+  cancelType String?
+  reasonForRequestCancellation String?
+  
+  // Messages and conversations
+  recentMessage String?
+  conversations String?
+  sentTo String?
+  sendMessage String? // TRUE/FALSE
+  
+  // Parchment
+  parchmentCode String?
+  
+  // Verifier/Processor
   verifierNotes  String?
   processorNotes String?
+  
+  // Files
   filesUrl       String?
-  lastUpdated    DateTime       @updatedAt
+  
+  // Metadata
+  created DateTime @default(now())
+  createdBy String?
+  modified DateTime @updatedAt
+  modifiedBy String?
+  
+  // Relations
   userId         String?
   user           User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   auditLogs      AuditLog[]
