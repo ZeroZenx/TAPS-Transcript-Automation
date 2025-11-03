@@ -27,8 +27,24 @@ router.get('/', authenticateToken, async (req, res) => {
     }
     // ADMIN, VERIFIER, PROCESSOR see all requests (no where clause added)
 
-    if (status) {
-      where.status = status;
+    if (status && status !== 'All') {
+      // Normalize status values to match database
+      const statusMap = {
+        'PENDING': 'PENDING',
+        'Pending': 'PENDING',
+        'COMPLETED': 'Completed',
+        'Completed': 'Completed',
+        'IN_PROGRESS': 'In progress',
+        'In progress': 'In progress',
+        'IN_REVIEW': 'In progress',
+        'APPROVED': 'Completed',
+        'REJECTED': 'Cancelled',
+        'CANCELLED': 'Cancelled',
+        'Cancelled': 'Cancelled',
+        'NEW': 'New',
+        'New': 'New',
+      };
+      where.status = statusMap[status] || status;
     }
     if (academicStatus) {
       where.academicStatus = academicStatus;
@@ -164,11 +180,15 @@ router.post('/', authenticateToken, requireRole('STUDENT'), async (req, res) => 
       where: { email: req.user.email },
     });
 
-    // Generate Request ID (8-digit format similar to Power App: e.g., 94870211)
-    const timestamp = Date.now();
-    const requestId = `${timestamp.toString().slice(-8)}`;
-
-    // Parse request date if provided, otherwise use current date
+    // Use provided Request ID or generate one (8-digit format matching database pattern)
+    // Pattern: XX XX XX MM where:
+    // - Last 2 digits (MM) = month from request date (01-12)
+    // - First 6 digits = unique identifier starting with 9 (using timestamp)
+    // This ensures IDs match existing pattern (9xxxxxxx) like 91882910, 98752910
+    // The month comes from the actual request date, not current date
+    let requestId = req.body.requestId;
+    
+    // Parse request date to get the month for the Request ID
     let parsedRequestDate = new Date();
     if (requestDate) {
       parsedRequestDate = new Date(requestDate);
@@ -176,6 +196,19 @@ router.post('/', authenticateToken, requireRole('STUDENT'), async (req, res) => 
         parsedRequestDate = new Date();
       }
     }
+    
+    if (!requestId) {
+      // Get month from request date
+      const month = String(parsedRequestDate.getMonth() + 1).padStart(2, '0');
+      
+      // Generate first 6 digits to ensure it starts with 9 and is unique
+      const timestamp = Date.now();
+      const first6 = '9' + timestamp.toString().slice(-5);
+      
+      requestId = first6 + month;
+    }
+
+    // parsedRequestDate is already set above when generating requestId
 
     // Create request
     const request = await prisma.request.create({

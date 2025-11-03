@@ -36,6 +36,59 @@ function parseBoolean(str) {
   return str;
 }
 
+// Normalize status values to match dropdown options
+function normalizeStatus(status, type = 'main') {
+  if (!status || status.trim() === '') return null;
+  
+  const normalized = status.trim();
+  
+  // Main status normalization
+  if (type === 'main') {
+    const statusMap = {
+      'new': 'New',
+      'pending': 'PENDING',
+      'in progress': 'In progress',
+      'in_progress': 'In progress',
+      'completed': 'Completed',
+      'cancelled': 'Cancelled',
+    };
+    const lower = normalized.toLowerCase();
+    return statusMap[lower] || normalized;
+  }
+  
+  // Library/Bursar status normalization
+  if (type === 'library' || type === 'bursar') {
+    const statusMap = {
+      'pending': 'Pending',
+      'approved': 'Approved',
+      'awaiting payment': 'Awaiting Payment',
+      'awaiting_payment': 'Awaiting Payment',
+    };
+    const lower = normalized.toLowerCase();
+    // Also handle uppercase "PENDING"
+    if (normalized === 'PENDING') return 'Pending';
+    return statusMap[lower] || normalized;
+  }
+  
+  // Academic status normalization
+  if (type === 'academic') {
+    // Academic status uses academicHistory field, but we can normalize it
+    const statusMap = {
+      'pending': 'Pending',
+      'completed': 'Completed',
+      'in complete': 'In complete',
+      'outstanding': 'Outstanding',
+      'hold': 'Hold',
+    };
+    const lower = normalized.toLowerCase();
+    // Also handle uppercase "PENDING"
+    if (normalized === 'PENDING') return 'Pending';
+    return statusMap[lower] || normalized;
+  }
+  
+  return normalized;
+}
+
 // Parse number/currency string
 function parseAmount(str) {
   if (!str || str.trim() === '') return null;
@@ -213,14 +266,14 @@ async function importData() {
           studentEmail: studentEmail || '',
           program: row['Program'] || '',
           requestDate: requestDate || new Date(),
-          status: row['Status'] || 'PENDING',
+          status: normalizeStatus(row['Status'], 'main') || 'PENDING',
           idValue: row['Id_Value'] || null,
           requestor: row['Requestor'] || null,
           
           // Academic
-          academicStatus: row['Academic History'] || row['Academic Status'] || null,
+          academicStatus: normalizeStatus(row['Academic History'] || row['Academic Status'], 'academic') || null,
           academicNote: row['Academic Verifier Comments'] || null,
-          academicHistory: row['Academic History'] || null,
+          academicHistory: normalizeStatus(row['Academic History'], 'academic') || null,
           academicVerifierComments: row['Academic Verifier Comments'] || null,
           academicCorrectionAddressed: parseBoolean(row['Academic Correction Addressed']),
           academicCorrectionComments: row['Academic Correction Comments'] || null,
@@ -243,14 +296,14 @@ async function importData() {
           })(),
           
           // Library
-          libraryStatus: row['Library Dept Status'] || null,
+          libraryStatus: normalizeStatus(row['Library Dept Status'], 'library') || null,
           libraryNote: row['Library Dept Comments'] || null,
           libraryDeptDueAmount: parseAmount(row['Library Dept Due Amount']),
           libraryDeptDueDetails: row['Library Detp Due Details'] || null,
           bursarsConfirmationForLibraryDuePayment: parseBoolean(row["Bursar's Confirmation for Library Due Payment"]),
           
           // Bursar
-          bursarStatus: row['Office of Bursar Status'] || null,
+          bursarStatus: normalizeStatus(row['Office of Bursar Status'], 'bursar') || null,
           bursarNote: row['Office of Bursar Comments'] || null,
           officeOfBursarDueAmount: parseAmount(row['Office of Bursar Due Amount']),
           officeOfBursarDueDetails: row['Office of Bursar Due Details'] || null,

@@ -34,10 +34,18 @@ export function NewRequestPage() {
   const queryClient = useQueryClient();
   const [files, setFiles] = useState<File[]>([]);
 
-  // Generate Request ID (8-digit format)
+  // Generate Request ID (8-digit format matching database pattern)
+  // Pattern: XX XX XX MM where:
+  // - Last 2 digits (MM) = month from request date (01-12)
+  // - First 6 digits = unique identifier starting with 9
+  // This ensures IDs match existing pattern (9xxxxxxx) like 91882910, 98752910
+  // Note: We generate initial ID here, but it will be regenerated on backend using actual request date
   const generateRequestId = () => {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
     const timestamp = Date.now();
-    return timestamp.toString().slice(-8);
+    const first6 = '9' + timestamp.toString().slice(-5);
+    return first6 + month;
   };
 
   const [requestId] = useState(generateRequestId());
@@ -80,6 +88,7 @@ export function NewRequestPage() {
 
       return requestsApi.create({
         ...data,
+        requestId, // Include the generated Request ID to maintain consistency
         requestDate: parseDate(data.requestDate),
         contactNumber: data.contactNumber || null,
         files: fileData,

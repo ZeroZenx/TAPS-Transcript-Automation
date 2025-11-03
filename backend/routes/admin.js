@@ -138,8 +138,17 @@ router.get('/stats', async (req, res) => {
     const [userCount, requestCount, pendingCount, completedCount] = await Promise.all([
       prisma.user.count(),
       prisma.request.count(),
-      prisma.request.count({ where: { status: 'PENDING' } }),
-      prisma.request.count({ where: { status: 'COMPLETED' } }),
+      // Match actual database values: 'PENDING' or 'Pending'
+      prisma.request.count({ 
+        where: { 
+          OR: [
+            { status: 'PENDING' },
+            { status: 'Pending' }
+          ]
+        } 
+      }),
+      // Match actual database values: 'Completed' (capitalized)
+      prisma.request.count({ where: { status: 'Completed' } }),
     ]);
 
     res.json({
