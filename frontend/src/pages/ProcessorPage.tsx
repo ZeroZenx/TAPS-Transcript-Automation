@@ -9,19 +9,56 @@ import { Input } from '../components/ui/input';
 import { formatDate } from '../lib/utils';
 import { Eye, Search } from 'lucide-react';
 
+const getDeptStatusBadge = (status: string) => {
+  if (!status || status === 'PENDING') return <Badge variant="warning">Pending</Badge>;
+  if (['Hold', 'Issue', 'Owing', 'Outstanding'].includes(status)) {
+    return <Badge variant="warning">{status}</Badge>;
+  }
+  return <Badge variant="success">{status}</Badge>;
+};
+
+const getStatusBadgeVariant = (status: string) => {
+  switch (status) {
+    case 'COMPLETED':
+      return 'purple';
+    case 'REJECTED':
+      return 'danger';
+    case 'IN_REVIEW':
+      return 'info';
+    case 'APPROVED':
+      return 'success';
+    case 'PENDING':
+    default:
+      return 'warning';
+  }
+};
+
 export function ProcessorPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['requests', 'processor'],
-    queryFn: () => requestsApi.getAll({ status: 'APPROVED' }),
+    queryFn: () => requestsApi.getAll({ limit: 1000 }), // Get all requests for Processor
   });
 
   const requests = data?.data?.requests || [];
 
-  // Filter requests by search query (client-side search)
-  const filteredRequests = requests.filter((request: any) => {
+  // Filter requests: Show requests ready for processing
+  // A request is ready when:
+  // 1. Library has approved (not PENDING)
+  // 2. Bursar has approved (not PENDING)
+  // 3. Academic has completed (academicStatus = 'COMPLETED')
+  const readyForProcessing = requests.filter((request: any) => {
+    const libraryApproved = request.libraryStatus && request.libraryStatus !== 'PENDING';
+    const bursarApproved = request.bursarStatus && request.bursarStatus !== 'PENDING';
+    const academicCompleted = request.academicStatus === 'COMPLETED';
+    
+    return libraryApproved && bursarApproved && academicCompleted;
+  });
+
+  // Filter by search query (client-side search)
+  const filteredRequests = readyForProcessing.filter((request: any) => {
     if (!searchQuery) return true;
     
     const query = searchQuery.toLowerCase();
@@ -61,7 +98,7 @@ export function ProcessorPage() {
               />
             </div>
             <div className="text-sm text-muted-foreground">
-              Showing {filteredRequests.length} of {requests.length} approved requests
+              Showing {filteredRequests.length} of {readyForProcessing.length} requests ready for processing
             </div>
           </div>
         </CardContent>
@@ -82,7 +119,9 @@ export function ProcessorPage() {
           ) : filteredRequests.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">
-                {searchQuery ? 'No requests found matching your search' : 'No approved requests to process'}
+                {searchQuery 
+                  ? 'No requests found matching your search' 
+                  : 'No requests ready for processing. Requests will appear here once Library, Bursar, and Academic have all completed their reviews.'}
               </p>
             </div>
           ) : (
@@ -94,6 +133,9 @@ export function ProcessorPage() {
                     <th className="text-left p-3 text-sm font-medium">Parchment Code</th>
                     <th className="text-left p-3 text-sm font-medium">Student Email</th>
                     <th className="text-left p-3 text-sm font-medium">Program</th>
+                    <th className="text-left p-3 text-sm font-medium">Library</th>
+                    <th className="text-left p-3 text-sm font-medium">Bursar</th>
+                    <th className="text-left p-3 text-sm font-medium">Academic</th>
                     <th className="text-left p-3 text-sm font-medium">Status</th>
                     <th className="text-left p-3 text-sm font-medium">Last Updated</th>
                     <th className="text-right p-3 text-sm font-medium">Actions</th>
@@ -111,7 +153,18 @@ export function ProcessorPage() {
                       <td className="p-3 text-sm">{request.studentEmail}</td>
                       <td className="p-3 text-sm">{request.program || 'N/A'}</td>
                       <td className="p-3">
-                        <Badge variant="success">{request.status}</Badge>
+                        {getDeptStatusBadge(request.libraryStatus || 'PENDING')}
+                      </td>
+                      <td className="p-3">
+                        {getDeptStatusBadge(request.bursarStatus || 'PENDING')}
+                      </td>
+                      <td className="p-3">
+                        {getDeptStatusBadge(request.academicStatus || 'PENDING')}
+                      </td>
+                      <td className="p-3">
+                        <Badge variant={getStatusBadgeVariant(request.status)}>
+                          {request.status || 'PENDING'}
+                        </Badge>
                       </td>
                       <td className="p-3 text-sm text-muted-foreground">
                         {formatDate(request.lastUpdated || request.requestDate)}

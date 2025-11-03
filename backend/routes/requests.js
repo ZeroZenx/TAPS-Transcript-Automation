@@ -10,7 +10,7 @@ const router = express.Router();
 // Get all requests (role-based filtering)
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const { status, page = 1, limit = 20, role } = req.query;
+    const { status, academicStatus, libraryStatus, bursarStatus, page = 1, limit = 20, role } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     let where = {};
@@ -29,6 +29,15 @@ router.get('/', authenticateToken, async (req, res) => {
 
     if (status) {
       where.status = status;
+    }
+    if (academicStatus) {
+      where.academicStatus = academicStatus;
+    }
+    if (libraryStatus) {
+      where.libraryStatus = libraryStatus;
+    }
+    if (bursarStatus) {
+      where.bursarStatus = bursarStatus;
     }
 
     const [requests, total] = await Promise.all([
@@ -206,6 +215,16 @@ router.post('/', authenticateToken, requireRole('STUDENT'), async (req, res) => 
       status: request.status,
     }, user?.id, request.id);
     await triggerPowerAutomateWebhook('REQUEST_CREATED', { requestId: request.requestId || request.id, studentEmail });
+
+    // Send immediate notifications to Library and Bursar
+    const { sendLibraryQueueNotification, sendBursarQueueNotification } = await import('../lib/queueNotifications.js');
+    try {
+      await sendLibraryQueueNotification(request);
+      await sendBursarQueueNotification(request);
+    } catch (emailError) {
+      console.error('Error sending queue notifications:', emailError);
+      // Don't fail the request creation if email fails
+    }
 
     res.status(201).json({ request });
   } catch (error) {
@@ -514,6 +533,120 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       user?.id,
       requestId
     );
+
+    // Check if Library status changed - notify Bursar AND TAPS system email
+    if (currentRequest.libraryStatus !== updatedRequest.libraryStatus) {
+      // Notify Bursar when Library changes from PENDING
+      if (currentRequest.libraryStatus === 'PENDING' && updatedRequest.libraryStatus !== 'PENDING') {
+        try {
+          const { sendLibraryStatusChangeNotification } = await import('../lib/queueNotifications.js');
+          await sendLibraryStatusChangeNotification(
+            updatedRequest,
+            currentRequest.libraryStatus,
+            updatedRequest.libraryStatus
+          );
+        } catch (emailError) {
+          console.error('Error sending Library status change notification:', emailError);
+          // Don't fail the update if email fails
+        }
+      }
+      
+      // Always notify TAPS system email of Library status changes
+      try {
+        const { sendLibraryStatusChangeToTAPS } = await import('../lib/queueNotifications.js');
+        await sendLibraryStatusChangeToTAPS(
+          updatedRequest,
+          currentRequest.libraryStatus,
+          updatedRequest.libraryStatus
+        );
+      } catch (emailError) {
+        console.error('Error sending Library status change notification to TAPS:', emailError);
+        // Don't fail the update if email fails
+      }
+    }
+
+    // Check if Bursar status changed - notify TAPS system email
+    if (currentRequest.bursarStatus !== updatedRequest.bursarStatus) {
+      // Always notify TAPS system email of Bursar status changes
+      try {
+        const { sendBursarStatusChangeNotification } = await import('../lib/queueNotifications.js');
+        await sendBursarStatusChangeNotification(
+          updatedRequest,
+          currentRequest.bursarStatus,
+          updatedRequest.bursarStatus
+        );
+      } catch (emailError) {
+        console.error('Error sending Bursar status change notification:', emailError);
+        // Don't fail the update if email fails
+      }
+    }
+
+    // Check if Academic status changed - notify TAPS system email
+    if (currentRequest.academicStatus !== updatedRequest.academicStatus) {
+      try {
+        const { sendAcademicStatusChangeToTAPS } = await import('../lib/queueNotifications.js');
+        await sendAcademicStatusChangeToTAPS(
+          updatedRequest,
+          currentRequest.academicStatus,
+          updatedRequest.academicStatus
+        );
+      } catch (emailError) {
+        console.error('Error sending Academic status change notification to TAPS:', emailError);
+        // Don't fail the update if email fails
+      }
+    }
+
+    // Check if general request status changed - notify TAPS system email
+    if (currentRequest.status !== updatedRequest.status) {
+      try {
+        const { sendRequestStatusChangeToTAPS } = await import('../lib/queueNotifications.js');
+        await sendRequestStatusChangeToTAPS(
+          updatedRequest,
+          currentRequest.status,
+          updatedRequest.status
+        );
+      } catch (emailError) {
+        console.error('Error sending Request status change notification to TAPS:', emailError);
+        // Don't fail the update if email fails
+      }
+    }
+
+    // Check if Library and Bursar have both confirmed, then notify Academic
+    if (updatedRequest.libraryStatus && updatedRequest.libraryStatus !== 'PENDING' &&
+        updatedRequest.bursarStatus && updatedRequest.bursarStatus !== 'PENDING' &&
+        updatedRequest.academicStatus === 'PENDING') {
+      try {
+        const { checkAndNotifyAcademic } = await import('../lib/queueNotifications.js');
+        await checkAndNotifyAcademic(updatedRequest);
+      } catch (emailError) {
+        console.error('Error checking and notifying Academic:', emailError);
+        // Don't fail the update if email fails
+      }
+    }
+
+    // Check if Academic status changed to COMPLETED - notify Processor
+    if (currentRequest.academicStatus !== updatedRequest.academicStatus && 
+        updatedRequest.academicStatus === 'COMPLETED') {
+      try {
+        const { sendAcademicCompletedNotification } = await import('../lib/queueNotifications.js');
+        await sendAcademicCompletedNotification(updatedRequest);
+      } catch (emailError) {
+        console.error('Error sending Academic completed notification:', emailError);
+        // Don't fail the update if email fails
+      }
+    }
+
+    // Check if Academic status changed to CORRECTIONS_REQUIRED - notify Processor
+    if (currentRequest.academicStatus !== updatedRequest.academicStatus && 
+        updatedRequest.academicStatus === 'CORRECTIONS_REQUIRED') {
+      try {
+        const { sendAcademicCorrectionNotification } = await import('../lib/queueNotifications.js');
+        await sendAcademicCorrectionNotification(updatedRequest);
+      } catch (emailError) {
+        console.error('Error sending Academic correction notification:', emailError);
+        // Don't fail the update if email fails
+      }
+    }
 
     await triggerPowerAutomateWebhook('REQUEST_UPDATED', {
       requestId,

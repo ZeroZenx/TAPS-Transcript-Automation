@@ -114,3 +114,12 @@ export const reportsApi = {
   getSummary: (params?: { startDate?: string; endDate?: string }) =>
     api.get('/reports/summary', { params }),
 };
+
+// Settings endpoints
+export const settingsApi = {
+  getSettings: () => api.get('/settings'),
+  updateSettings: (data: any) => api.patch('/settings', data),
+  testEmail: (testEmail: string) => api.post('/settings/test-email', { testEmail }),
+  sendMessage: (requestId: string, message: string, recipient: string) => 
+    api.post('/settings/send-message', { requestId, message, recipient }),
+};

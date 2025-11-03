@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { requestsApi } from '../services/api';
+import { requestsApi, settingsApi } from '../services/api';
 import { useToast } from './ui/use-toast';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
@@ -126,6 +126,26 @@ export function VerifierFormView({ request, requestId }: VerifierFormViewProps) 
     navigate(-1);
   };
 
+  const sendMessageMutation = useMutation({
+    mutationFn: ({ requestId, message, recipient }: { requestId: string; message: string; recipient: string }) =>
+      settingsApi.sendMessage(requestId, message, recipient),
+    onSuccess: (data: any) => {
+      toast({
+        title: 'Message Sent',
+        description: `Your message has been sent to ${data.data?.recipientEmail || 'the recipient'}`,
+      });
+      setMessage('');
+      setSentTo('');
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: error.response?.data?.error || 'Failed to send message',
+        variant: 'destructive',
+      });
+    },
+  });
+
   const handleSendMessage = () => {
     if (!message.trim()) {
       toast({
@@ -136,14 +156,20 @@ export function VerifierFormView({ request, requestId }: VerifierFormViewProps) 
       return;
     }
 
-    // TODO: Implement message sending functionality
-    toast({
-      title: 'Message Sent',
-      description: 'Your message has been sent',
+    if (!sentTo) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please select a recipient',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    sendMessageMutation.mutate({
+      requestId,
+      message,
+      recipient: sentTo,
     });
-    
-    setMessage('');
-    setSentTo('');
   };
 
   const handleRemoveAttachment = (index: number) => {
@@ -531,7 +557,6 @@ export function VerifierFormView({ request, requestId }: VerifierFormViewProps) 
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   >
                     <option value="">Select recipient</option>
-                    <option value="student">Student</option>
                     <option value="library">Library Dept</option>
                     <option value="bursar">Bursar</option>
                     <option value="academic">Academic Dept</option>
@@ -541,10 +566,11 @@ export function VerifierFormView({ request, requestId }: VerifierFormViewProps) 
 
                 <Button
                   onClick={handleSendMessage}
+                  disabled={sendMessageMutation.isPending}
                   className="w-full bg-orange-600 hover:bg-orange-700 text-white"
                 >
                   <Send className="h-4 w-4 mr-2" />
-                  Send
+                  {sendMessageMutation.isPending ? 'Sending...' : 'Send'}
                 </Button>
               </div>
 

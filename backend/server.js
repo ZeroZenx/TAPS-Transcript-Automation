@@ -15,6 +15,8 @@ import adminRouter from './routes/admin.js';
 import importRouter from './routes/import.js';
 import auditRouter from './routes/audit.js';
 import reportsRouter from './routes/reports.js';
+import settingsRouter from './routes/settings.js';
+import remindersRouter from './routes/reminders.js';
 
 dotenv.config();
 
@@ -111,6 +113,8 @@ app.use('/api/admin', adminRouter);
 app.use('/api/import', importRouter);
 app.use('/api/audit', auditRouter);
 app.use('/api/reports', reportsRouter);
+app.use('/api/settings', settingsRouter);
+app.use('/api/reminders', remindersRouter);
 
     // Serve index.html for all non-API routes (must be last)
     app.get('*', (req, res, next) => {
