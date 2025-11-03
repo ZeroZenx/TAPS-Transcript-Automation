@@ -168,7 +168,10 @@ model Settings {
   academicCompletedSubject   String? // Email subject when academic verification is completed
   academicCorrectionTemplate String? // Email template when academic corrections are required
   academicCorrectionSubject  String? // Email subject when academic corrections are required
-  conversationTemplate  String?  // Email template for conversation messages
+  completionTemplate         String? // Email template when request is 100% completed
+  completionSubject          String? // Email subject when request is completed
+  cancellationTemplate       String? // Email template when request is cancelled
+  cancellationSubject        String? // Email subject when request is cancelled
   // Reminder Settings
   reminderHoursLibrary   Int?     @default(48) // Hours before sending reminder to Library
   reminderHoursBursar    Int?     @default(48) // Hours before sending reminder to Bursar

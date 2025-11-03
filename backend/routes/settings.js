@@ -71,6 +71,10 @@ router.patch('/', async (req, res) => {
       academicCompletedSubject,
       academicCorrectionTemplate,
       academicCorrectionSubject,
+      completionTemplate,
+      completionSubject,
+      cancellationTemplate,
+      cancellationSubject,
       reminderHoursLibrary,
       reminderHoursBursar,
       reminderHoursAcademic,
@@ -121,6 +125,10 @@ router.patch('/', async (req, res) => {
     if (academicCompletedSubject !== undefined) updateData.academicCompletedSubject = academicCompletedSubject || null;
     if (academicCorrectionTemplate !== undefined) updateData.academicCorrectionTemplate = academicCorrectionTemplate || null;
     if (academicCorrectionSubject !== undefined) updateData.academicCorrectionSubject = academicCorrectionSubject || null;
+    if (completionTemplate !== undefined) updateData.completionTemplate = completionTemplate || null;
+    if (completionSubject !== undefined) updateData.completionSubject = completionSubject || null;
+    if (cancellationTemplate !== undefined) updateData.cancellationTemplate = cancellationTemplate || null;
+    if (cancellationSubject !== undefined) updateData.cancellationSubject = cancellationSubject || null;
     if (reminderHoursLibrary !== undefined) updateData.reminderHoursLibrary = reminderHoursLibrary || 48;
     if (reminderHoursBursar !== undefined) updateData.reminderHoursBursar = reminderHoursBursar || 48;
     if (reminderHoursAcademic !== undefined) updateData.reminderHoursAcademic = reminderHoursAcademic || 48;

@@ -648,6 +648,30 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       }
     }
 
+    // Check if request status changed to COMPLETED - send completion email to student (CC TAPS)
+    if (currentRequest.status !== updatedRequest.status && 
+        updatedRequest.status === 'COMPLETED') {
+      try {
+        const { sendCompletionNotification } = await import('../lib/queueNotifications.js');
+        await sendCompletionNotification(updatedRequest);
+      } catch (emailError) {
+        console.error('Error sending completion notification:', emailError);
+        // Don't fail the update if email fails
+      }
+    }
+
+    // Check if request status changed to CANCELLED or Cancelled - send cancellation email to student
+    if (currentRequest.status !== updatedRequest.status && 
+        (updatedRequest.status === 'CANCELLED' || updatedRequest.status === 'Cancelled')) {
+      try {
+        const { sendCancellationNotification } = await import('../lib/queueNotifications.js');
+        await sendCancellationNotification(updatedRequest);
+      } catch (emailError) {
+        console.error('Error sending cancellation notification:', emailError);
+        // Don't fail the update if email fails
+      }
+    }
+
     await triggerPowerAutomateWebhook('REQUEST_UPDATED', {
       requestId,
       updates: updateData,

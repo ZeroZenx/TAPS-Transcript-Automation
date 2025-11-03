@@ -49,6 +49,10 @@ export function SettingsPage() {
     academicCompletedSubject: '',
     academicCorrectionTemplate: '',
     academicCorrectionSubject: '',
+    completionTemplate: '',
+    completionSubject: '',
+    cancellationTemplate: '',
+    cancellationSubject: '',
     reminderHoursLibrary: 48,
     reminderHoursBursar: 48,
     reminderHoursAcademic: 48,
@@ -84,6 +88,10 @@ export function SettingsPage() {
         academicCompletedSubject: settings.academicCompletedSubject || 'Transcript Request for Academic Verification Completed - {{REQUEST_ID}}',
         academicCorrectionTemplate: settings.academicCorrectionTemplate || 'Dear Transcript Processor,\n\nTranscript request - {{REQUEST_ID}} - {{STUDENT_ID}} has been reviewed and corrections are required.:\n\nRegards,',
         academicCorrectionSubject: settings.academicCorrectionSubject || 'Academic corrections required: {{REQUEST_ID}}',
+        completionTemplate: settings.completionTemplate || 'Dear {{STUDENT_NAME}},\n\nYour transcript request {{REQUEST_ID}} has been successfully completed and is ready for collection.\n\nRequest Details:\n- Request ID: {{REQUEST_ID}}\n- Student ID: {{STUDENT_ID}}\n- Program: {{PROGRAM}}\n\nPlease visit our office during business hours to collect your transcript.\n\nThank you for using TAPS - Transcript Automation and Processing Service.\n\nRegards,\nTAPS System',
+        completionSubject: settings.completionSubject || 'Transcript Request Completed - {{REQUEST_ID}}',
+        cancellationTemplate: settings.cancellationTemplate || 'Dear {{STUDENT_NAME}},\n\nYour transcript request {{REQUEST_ID}} has been cancelled.\n\nRequest Details:\n- Request ID: {{REQUEST_ID}}\n- Student ID: {{STUDENT_ID}}\n- Program: {{PROGRAM}}\n\nIf you believe this is an error or if you have any questions, please contact our office.\n\nRegards,\nTAPS System',
+        cancellationSubject: settings.cancellationSubject || 'Transcript Request Cancelled - {{REQUEST_ID}}',
         reminderHoursLibrary: settings.reminderHoursLibrary || 48,
         reminderHoursBursar: settings.reminderHoursBursar || 48,
         reminderHoursAcademic: settings.reminderHoursAcademic || 48,
@@ -618,6 +626,78 @@ export function SettingsPage() {
                           }
                           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[120px] font-mono"
                           placeholder="Dear Transcript Processor,..."
+                        />
+                      </div>
+                    </div>
+
+                    {/* Request Completion (to Student) */}
+                    <div className="space-y-3 p-4 border rounded-lg">
+                      <h4 className="font-semibold text-base">Request Completion (to Student)</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Email sent to student when request is 100% completed. CC will be sent to TAPS system email.
+                      </p>
+                      <div className="space-y-2">
+                        <label htmlFor="completionSubject" className="text-sm font-medium">
+                          Email Subject
+                        </label>
+                        <Input
+                          id="completionSubject"
+                          value={emailConfig.completionSubject}
+                          onChange={(e) =>
+                            setEmailConfig({ ...emailConfig, completionSubject: e.target.value })
+                          }
+                          placeholder="Transcript Request Completed - {{REQUEST_ID}}"
+                          className="font-mono text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="completionTemplate" className="text-sm font-medium">
+                          Email Body Template (to Student)
+                        </label>
+                        <textarea
+                          id="completionTemplate"
+                          value={emailConfig.completionTemplate}
+                          onChange={(e) =>
+                            setEmailConfig({ ...emailConfig, completionTemplate: e.target.value })
+                          }
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[150px] font-mono"
+                          placeholder="Dear {{STUDENT_NAME}},..."
+                        />
+                      </div>
+                    </div>
+
+                    {/* Request Cancellation (to Student) */}
+                    <div className="space-y-3 p-4 border rounded-lg">
+                      <h4 className="font-semibold text-base">Request Cancellation (to Student)</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Email sent to student when request is cancelled.
+                      </p>
+                      <div className="space-y-2">
+                        <label htmlFor="cancellationSubject" className="text-sm font-medium">
+                          Email Subject
+                        </label>
+                        <Input
+                          id="cancellationSubject"
+                          value={emailConfig.cancellationSubject}
+                          onChange={(e) =>
+                            setEmailConfig({ ...emailConfig, cancellationSubject: e.target.value })
+                          }
+                          placeholder="Transcript Request Cancelled - {{REQUEST_ID}}"
+                          className="font-mono text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="cancellationTemplate" className="text-sm font-medium">
+                          Email Body Template (to Student)
+                        </label>
+                        <textarea
+                          id="cancellationTemplate"
+                          value={emailConfig.cancellationTemplate}
+                          onChange={(e) =>
+                            setEmailConfig({ ...emailConfig, cancellationTemplate: e.target.value })
+                          }
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[150px] font-mono"
+                          placeholder="Dear {{STUDENT_NAME}},..."
                         />
                       </div>
                     </div>

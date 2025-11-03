@@ -817,3 +817,119 @@ export async function sendAcademicCorrectionNotification(request) {
   }
 }
 
+/**
+ * Send completion email to student when request is 100% completed (CC to TAPS system)
+ */
+export async function sendCompletionNotification(request) {
+  try {
+    const settings = await getEmailSettings();
+    
+    if (!settings || !settings.enableAlerts || !request.studentEmail) {
+      console.log('Completion notification disabled or student email not available');
+      return { success: false, message: 'Completion notification disabled or student email missing' };
+    }
+
+    const subjectTemplate = settings.completionSubject || 'Transcript Request Completed - {{REQUEST_ID}}';
+    const bodyTemplate = settings.completionTemplate || 'Dear {{STUDENT_NAME}},\n\nYour transcript request {{REQUEST_ID}} has been successfully completed and is ready for collection.\n\nRequest Details:\n- Request ID: {{REQUEST_ID}}\n- Student ID: {{STUDENT_ID}}\n- Program: {{PROGRAM}}\n\nPlease visit our office during business hours to collect your transcript.\n\nThank you for using TAPS - Transcript Automation and Processing Service.\n\nRegards,\nTAPS System';
+
+    const subject = replaceTemplateVariables(subjectTemplate, {
+      requestId: request.requestId || request.id?.substring(0, 8) || 'N/A',
+      studentName: request.requestor || 'Student',
+      studentId: request.studentId || 'N/A',
+      studentEmail: request.studentEmail || 'N/A',
+      program: request.program || 'N/A',
+    });
+    const body = replaceTemplateVariables(bodyTemplate, {
+      requestId: request.requestId || request.id?.substring(0, 8) || 'N/A',
+      studentName: request.requestor || 'Student',
+      studentId: request.studentId || 'N/A',
+      studentEmail: request.studentEmail || 'N/A',
+      program: request.program || 'N/A',
+    });
+
+    // CC the TAPS system email
+    const ccEmail = settings.emailAccount ? [settings.emailAccount] : null;
+
+    const result = await sendEmail({
+      to: request.studentEmail,
+      cc: ccEmail,
+      subject,
+      htmlBody: `
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+              ${body.replace(/\n/g, '<br>')}
+              <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
+              <p style="color: #666; font-size: 12px;">
+                This is an automated message from the TAPS - Transcript Automation and Processing Service.
+              </p>
+            </div>
+          </body>
+        </html>
+      `,
+      textBody: body,
+    });
+
+    return result;
+  } catch (error) {
+    console.error('Error sending completion notification:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+/**
+ * Send cancellation email to student when request is cancelled
+ */
+export async function sendCancellationNotification(request) {
+  try {
+    const settings = await getEmailSettings();
+    
+    if (!settings || !settings.enableAlerts || !request.studentEmail) {
+      console.log('Cancellation notification disabled or student email not available');
+      return { success: false, message: 'Cancellation notification disabled or student email missing' };
+    }
+
+    const subjectTemplate = settings.cancellationSubject || 'Transcript Request Cancelled - {{REQUEST_ID}}';
+    const bodyTemplate = settings.cancellationTemplate || 'Dear {{STUDENT_NAME}},\n\nYour transcript request {{REQUEST_ID}} has been cancelled.\n\nRequest Details:\n- Request ID: {{REQUEST_ID}}\n- Student ID: {{STUDENT_ID}}\n- Program: {{PROGRAM}}\n\nIf you believe this is an error or if you have any questions, please contact our office.\n\nRegards,\nTAPS System';
+
+    const subject = replaceTemplateVariables(subjectTemplate, {
+      requestId: request.requestId || request.id?.substring(0, 8) || 'N/A',
+      studentName: request.requestor || 'Student',
+      studentId: request.studentId || 'N/A',
+      studentEmail: request.studentEmail || 'N/A',
+      program: request.program || 'N/A',
+    });
+    const body = replaceTemplateVariables(bodyTemplate, {
+      requestId: request.requestId || request.id?.substring(0, 8) || 'N/A',
+      studentName: request.requestor || 'Student',
+      studentId: request.studentId || 'N/A',
+      studentEmail: request.studentEmail || 'N/A',
+      program: request.program || 'N/A',
+    });
+
+    const result = await sendEmail({
+      to: request.studentEmail,
+      subject,
+      htmlBody: `
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+              ${body.replace(/\n/g, '<br>')}
+              <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
+              <p style="color: #666; font-size: 12px;">
+                This is an automated message from the TAPS - Transcript Automation and Processing Service.
+              </p>
+            </div>
+          </body>
+        </html>
+      `,
+      textBody: body,
+    });
+
+    return result;
+  } catch (error) {
+    console.error('Error sending cancellation notification:', error);
+    return { success: false, message: error.message };
+  }
+}
+
