@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { requestsApi } from '../services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -40,30 +40,63 @@ const STATUS_OPTIONS = ['All', 'PENDING', 'IN_REVIEW', 'In progress', 'APPROVED'
 
 export function QueuePage({ queueType }: QueuePageProps) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const config = queueConfig[queueType];
-  const [statusFilter, setStatusFilter] = useState<string>('All');
+  
+  // Initialize status filter from URL params or default
+  const urlFilter = searchParams.get('filter');
+  const initialStatus = urlFilter === 'pending' ? 'PENDING' : 
+                       urlFilter === 'completed' ? 'COMPLETED' : 
+                       urlFilter === 'all' ? 'All' : 'All';
+  
+  const [statusFilter, setStatusFilter] = useState<string>(initialStatus);
   const [searchQuery, setSearchQuery] = useState('');
   const [quickFilter, setQuickFilter] = useState<string>(''); // For Verifier: "needs-action" or "hold-present"
+  const [page, setPage] = useState(1);
+  const [limit] = useState(100); // Increased limit for better pagination
+  
+  // Update status filter when URL changes
+  useEffect(() => {
+    if (urlFilter === 'pending') {
+      setStatusFilter('PENDING');
+    } else if (urlFilter === 'completed') {
+      setStatusFilter('COMPLETED');
+    } else if (urlFilter === 'all') {
+      setStatusFilter('All');
+    }
+    // Reset to page 1 when filter changes
+    setPage(1);
+  }, [urlFilter]);
+
+  // Build query params for API call
+  const queryParams: any = {
+    page,
+    limit,
+  };
+
+  // Only add status filter if it's not "All"
+  if (statusFilter !== 'All' && statusFilter) {
+    queryParams.status = statusFilter;
+  }
 
   const { data, isLoading } = useQuery({
-    queryKey: ['requests', 'queue', queueType],
-    queryFn: () => requestsApi.getAll(),
+    queryKey: ['requests', 'queue', queueType, queryParams],
+    queryFn: () => requestsApi.getAll(queryParams),
   });
 
   const requests = data?.data?.requests || [];
+  const pagination = data?.data?.pagination;
 
-  // Filter requests
+  // Client-side filtering (only for search and quick filters, not status since backend handles it)
   const filteredRequests = requests.filter((request: any) => {
-    // Normalize status for comparison
-    const normalizedStatus = request.status?.replace(/\s+/g, '_').toUpperCase() || '';
-    const normalizedFilter = statusFilter?.replace(/\s+/g, '_').toUpperCase() || '';
-    const matchesStatus = statusFilter === 'All' || request.status === statusFilter || normalizedStatus === normalizedFilter;
+    // Search filter (client-side since backend doesn't support it yet)
     const matchesSearch = searchQuery === '' || 
       request.studentEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       request.program?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      request.id?.toLowerCase().includes(searchQuery.toLowerCase());
+      request.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (request.requestId && request.requestId.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    // Quick filters for Verifier
+    // Quick filters for Verifier (client-side only)
     let matchesQuickFilter = true;
     if (queueType === 'verifier' && quickFilter) {
       if (quickFilter === 'needs-action') {
@@ -82,7 +115,8 @@ export function QueuePage({ queueType }: QueuePageProps) {
       }
     }
     
-    return matchesStatus && matchesSearch && matchesQuickFilter;
+    // Status is already filtered by backend, so we don't filter by status here
+    return matchesSearch && matchesQuickFilter;
   });
 
   const getStatusBadgeVariant = (status: string) => {
@@ -123,8 +157,8 @@ export function QueuePage({ queueType }: QueuePageProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="space-y-6 min-w-0">
+      <div className="min-w-0">
         <h1 className="text-3xl font-bold">{config.title}</h1>
         <p className="text-muted-foreground mt-2">
           {queueType === 'verifier' 
@@ -139,8 +173,8 @@ export function QueuePage({ queueType }: QueuePageProps) {
           <CardTitle>Filters</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4">
-            <div className="flex-1">
+          <div className="flex flex-wrap gap-3">
+            <div className="flex-1 min-w-[200px] max-w-[400px]">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -153,7 +187,7 @@ export function QueuePage({ queueType }: QueuePageProps) {
             </div>
             {queueType === 'verifier' && (
               <>
-                <div className="w-48">
+                <div className="w-full sm:w-40">
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
@@ -166,7 +200,7 @@ export function QueuePage({ queueType }: QueuePageProps) {
                     ))}
                   </select>
                 </div>
-                <div className="w-48">
+                <div className="w-full sm:w-40">
                   <select
                     value={quickFilter}
                     onChange={(e) => setQuickFilter(e.target.value)}
@@ -180,7 +214,7 @@ export function QueuePage({ queueType }: QueuePageProps) {
               </>
             )}
             {queueType !== 'verifier' && (
-              <div className="w-48">
+              <div className="w-full sm:w-40">
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -208,29 +242,30 @@ export function QueuePage({ queueType }: QueuePageProps) {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-3 text-sm font-medium">Request ID</th>
+              <div className="max-h-[600px] overflow-y-auto">
+                <table className="w-full">
+                  <thead className="sticky top-0 bg-card z-10 shadow-sm">
+                    <tr className="border-b bg-card">
+                      <th className="text-left p-3 text-sm font-medium bg-card">Request ID</th>
                     {queueType === 'verifier' && (
                       <>
-                        <th className="text-left p-3 text-sm font-medium">Student Email</th>
+                        <th className="text-left p-3 text-sm font-medium bg-card">Student Email</th>
                       </>
                     )}
-                    <th className="text-left p-3 text-sm font-medium">Program</th>
+                    <th className="text-left p-3 text-sm font-medium bg-card">Program</th>
                     {queueType === 'verifier' && (
                       <>
-                        <th className="text-left p-3 text-sm font-medium">Library</th>
-                        <th className="text-left p-3 text-sm font-medium">Bursar</th>
-                        <th className="text-left p-3 text-sm font-medium">Academic</th>
+                        <th className="text-left p-3 text-sm font-medium bg-card">Library</th>
+                        <th className="text-left p-3 text-sm font-medium bg-card">Bursar</th>
+                        <th className="text-left p-3 text-sm font-medium bg-card">Academic</th>
                       </>
                     )}
-                    <th className="text-left p-3 text-sm font-medium">Status</th>
+                    <th className="text-left p-3 text-sm font-medium bg-card">Status</th>
                     {queueType !== 'verifier' && (
-                      <th className="text-left p-3 text-sm font-medium">{config.title.includes('Library') ? 'Library' : config.title.includes('Bursar') ? 'Bursar' : 'Academic'} Status</th>
+                      <th className="text-left p-3 text-sm font-medium bg-card">{config.title.includes('Library') ? 'Library' : config.title.includes('Bursar') ? 'Bursar' : 'Academic'} Status</th>
                     )}
-                    <th className="text-left p-3 text-sm font-medium">Last Updated</th>
-                    <th className="text-right p-3 text-sm font-medium">Actions</th>
+                    <th className="text-left p-3 text-sm font-medium bg-card">Last Updated</th>
+                    <th className="text-right p-3 text-sm font-medium bg-card">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -287,8 +322,43 @@ export function QueuePage({ queueType }: QueuePageProps) {
                       </td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {pagination && pagination.pages > 1 && (
+            <div className="flex items-center justify-between mt-4 pt-4 border-t">
+              <div className="text-sm text-muted-foreground">
+                Showing {((pagination.page - 1) * pagination.limit) + 1} to{' '}
+                {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
+                {pagination.total} requests
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={pagination.page === 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                >
+                  Previous
+                </Button>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Page {pagination.page} of {pagination.pages}
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={pagination.page >= pagination.pages}
+                  onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
+                >
+                  Next
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

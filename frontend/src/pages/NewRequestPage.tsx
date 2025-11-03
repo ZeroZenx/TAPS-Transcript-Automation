@@ -18,22 +18,10 @@ const requestSchema = z.object({
   requestor: z.string().min(1, 'Requestor is required'),
   parchmentCode: z.string().min(1, 'Parchment Code is required'),
   requestDate: z.string().min(1, 'Date of Request is required'),
-  program: z.string().optional(),
   notes: z.string().optional(),
 });
 
 type RequestFormData = z.infer<typeof requestSchema>;
-
-const PROGRAMS = [
-  'Business Administration',
-  'Computer Science',
-  'Engineering',
-  'Health Sciences',
-  'Humanities',
-  'Natural Sciences',
-  'Social Sciences',
-  'Other'
-];
 
 const ALLOWED_FILE_TYPES = ['.pdf', '.jpg', '.jpeg', '.png', '.docx'];
 const MAX_FILES = 10;
@@ -272,32 +260,10 @@ export function NewRequestPage() {
                   id="studentEmail"
                   type="email"
                   {...register('studentEmail')}
-                  readOnly
-                  className="bg-muted"
+                  placeholder="Enter email address"
                 />
-                <p className="text-xs text-muted-foreground">
-                  This field is read-only and comes from your account
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="program" className="text-sm font-medium">
-                  Program
-                </label>
-                <select
-                  id="program"
-                  {...register('program')}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <option value="">Select a program (optional)</option>
-                  {PROGRAMS.map((program) => (
-                    <option key={program} value={program}>
-                      {program}
-                    </option>
-                  ))}
-                </select>
-                {errors.program && (
-                  <p className="text-sm text-destructive">{errors.program.message}</p>
+                {errors.studentEmail && (
+                  <p className="text-sm text-destructive">{errors.studentEmail.message}</p>
                 )}
               </div>
 

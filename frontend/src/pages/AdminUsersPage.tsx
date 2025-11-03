@@ -9,7 +9,8 @@ import { Input } from '../components/ui/input';
 import { formatDate } from '../lib/utils';
 import { Search } from 'lucide-react';
 
-const roles = ['STUDENT', 'LIBRARY', 'BURSAR', 'ACADEMIC', 'VERIFIER', 'PROCESSOR', 'ADMIN'];
+// Only staff roles who can login - STUDENT role excluded
+const roles = ['LIBRARY', 'BURSAR', 'ACADEMIC', 'VERIFIER', 'PROCESSOR', 'ADMIN'];
 
 export function AdminUsersPage() {
   const { toast } = useToast();
@@ -23,8 +24,15 @@ export function AdminUsersPage() {
 
   const users = data?.data?.users || [];
 
+  // Additional client-side filter to ensure only staff users with login access are shown
+  // This is a safety net - backend should already filter, but this ensures STUDENT users never appear
+  const staffRoles = ['LIBRARY', 'BURSAR', 'ACADEMIC', 'VERIFIER', 'PROCESSOR', 'ADMIN'];
+  const staffUsers = users.filter((user: any) => 
+    staffRoles.includes(user.role?.toUpperCase())
+  );
+
   // Filter users by search
-  const filteredUsers = users.filter((user: any) => {
+  const filteredUsers = staffUsers.filter((user: any) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -99,7 +107,9 @@ export function AdminUsersPage() {
             </div>
           ) : filteredUsers.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No users found</p>
+              <p className="text-muted-foreground">
+                {staffUsers.length === 0 ? 'No staff users found' : 'No users match your search'}
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">

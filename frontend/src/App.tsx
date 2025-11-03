@@ -17,6 +17,8 @@ import { AdminUsersPage } from './pages/AdminUsersPage';
 import { RequestDetailPage } from './pages/RequestDetailPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ImportPage } from './pages/ImportPage';
+import { AuditPage } from './pages/AuditPage';
+import { ReportsPage } from './pages/ReportsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,8 +50,8 @@ function App() {
                 >
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />
-                <Route path="requests/new" element={<ProtectedRoute allowedRoles={['STUDENT', 'ADMIN']}><NewRequestPage /></ProtectedRoute>} />
-                <Route path="requests/my" element={<ProtectedRoute allowedRoles={['STUDENT', 'ADMIN']}><MyRequestsPage /></ProtectedRoute>} />
+                <Route path="requests/new" element={<ProtectedRoute allowedRoles={['STUDENT', 'VERIFIER', 'PROCESSOR', 'ADMIN']}><NewRequestPage /></ProtectedRoute>} />
+                <Route path="requests/my" element={<ProtectedRoute allowedRoles={['STUDENT', 'VERIFIER', 'PROCESSOR', 'ADMIN']}><MyRequestsPage /></ProtectedRoute>} />
                 <Route path="requests/:id" element={<RequestDetailPage />} />
                 <Route path="queue/verifier" element={<ProtectedRoute allowedRoles={['VERIFIER', 'ADMIN']}><QueuePage queueType="verifier" /></ProtectedRoute>} />
                 <Route path="queue/library" element={<ProtectedRoute allowedRoles={['LIBRARY', 'ADMIN']}><QueuePage queueType="library" /></ProtectedRoute>} />
@@ -58,7 +60,9 @@ function App() {
                 <Route path="processor" element={<ProtectedRoute allowedRoles={['PROCESSOR', 'ADMIN']}><ProcessorPage /></ProtectedRoute>} />
                 <Route path="admin/users" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminUsersPage /></ProtectedRoute>} />
                 <Route path="admin/import" element={<ProtectedRoute allowedRoles={['ADMIN']}><ImportPage /></ProtectedRoute>} />
-                <Route path="settings" element={<SettingsPage />} />
+                <Route path="admin/audit" element={<ProtectedRoute allowedRoles={['ADMIN']}><AuditPage /></ProtectedRoute>} />
+                <Route path="admin/reports" element={<ProtectedRoute allowedRoles={['ADMIN']}><ReportsPage /></ProtectedRoute>} />
+                <Route path="settings" element={<ProtectedRoute allowedRoles={['ADMIN']}><SettingsPage /></ProtectedRoute>} />
               </Route>
             </Routes>
             <Toaster />

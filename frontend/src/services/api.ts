@@ -74,3 +74,43 @@ export const importApi = {
     return api.post('/import/tsv', formData);
   },
 };
+
+// Audit endpoints
+export const auditApi = {
+  getLogs: (params?: {
+    requestId?: string;
+    userId?: string;
+    action?: string;
+    startDate?: string;
+    endDate?: string;
+    page?: number;
+    limit?: number;
+  }) => api.get('/audit', { params }),
+  getRequestLogs: (requestId: string) =>
+    api.get(`/audit/request/${requestId}`),
+  getStats: (params?: { startDate?: string; endDate?: string }) =>
+    api.get('/audit/stats', { params }),
+};
+
+// Reports endpoints
+export const reportsApi = {
+  getReports: (params?: {
+    startDate?: string;
+    endDate?: string;
+    status?: string;
+    department?: string;
+    program?: string;
+    studentEmail?: string;
+    format?: 'json' | 'csv';
+  }) => {
+    if (params?.format === 'csv') {
+      return api.get('/reports', {
+        params,
+        responseType: 'blob',
+      });
+    }
+    return api.get('/reports', { params });
+  },
+  getSummary: (params?: { startDate?: string; endDate?: string }) =>
+    api.get('/reports/summary', { params }),
+};

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { requestsApi } from '../services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -11,37 +12,86 @@ import { Eye, FileText, Search } from 'lucide-react';
 
 const STATUS_OPTIONS = [
   'All',
+  'New',
   'PENDING',
-  'IN_REVIEW',
   'In progress',
-  'APPROVED',
-  'REJECTED',
-  'COMPLETED'
+  'Completed',
+  'Cancelled',
 ];
 
 export function MyRequestsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Normalize status filter value to match database values
+  const normalizeStatusForBackend = (status: string): string | undefined => {
+    if (status === 'All') return undefined;
+    // Map dropdown values to actual database values
+    const statusMap: { [key: string]: string } = {
+      'COMPLETED': 'Completed',
+      'CANCELLED': 'Cancelled',
+      'IN_REVIEW': 'In progress', // Map IN_REVIEW to In progress if that's what's in DB
+      'PENDING': 'PENDING',
+      'New': 'New',
+      'In progress': 'In progress',
+      'Completed': 'Completed',
+      'Cancelled': 'Cancelled',
+    };
+    return statusMap[status] || status;
+  };
+
+  // For admin users, use getAll() to see all requests. For students, use getMy()
   const { data, isLoading } = useQuery({
-    queryKey: ['requests', 'my'],
-    queryFn: () => requestsApi.getMy(),
+    queryKey: ['requests', isAdmin ? 'all' : 'my', statusFilter],
+    queryFn: () => {
+      if (isAdmin) {
+        // For admin, use getAll with status filter if not "All"
+        const normalizedStatus = normalizeStatusForBackend(statusFilter);
+        return requestsApi.getAll({
+          status: normalizedStatus,
+          limit: 1000, // Get a large number for admin view
+        });
+      } else {
+        return requestsApi.getMy();
+      }
+    },
   });
 
   const requests = data?.data?.requests || [];
 
-  // Filter requests
+  // Filter requests (only client-side search filtering, status is handled by backend for admin)
   const filteredRequests = requests.filter((request: any) => {
-    // Normalize status for comparison
-    const normalizedStatus = request.status?.replace(/\s+/g, '_').toUpperCase() || '';
-    const normalizedFilter = statusFilter?.replace(/\s+/g, '_').toUpperCase() || '';
-    const matchesStatus = statusFilter === 'All' || request.status === statusFilter || normalizedStatus === normalizedFilter;
-    const matchesSearch = searchQuery === '' || 
-      request.program.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      request.studentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      request.id.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
+    // For admin, status is already filtered by backend, only do search filtering
+    // For students, do both status and search filtering
+    if (isAdmin) {
+      // Only search filtering for admin
+      const matchesSearch = searchQuery === '' || 
+        (request.program && request.program.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (request.studentId && request.studentId.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (request.id && request.id.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (request.requestId && request.requestId.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (request.studentEmail && request.studentEmail.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesSearch;
+    } else {
+      // For students, do status and search filtering
+      // Case-insensitive status matching
+      const requestStatus = (request.status || '').toLowerCase().trim();
+      const filterStatus = (statusFilter || '').toLowerCase().trim();
+      const matchesStatus = statusFilter === 'All' || 
+        requestStatus === filterStatus ||
+        (filterStatus === 'completed' && requestStatus === 'completed') ||
+        (filterStatus === 'cancelled' && requestStatus === 'cancelled') ||
+        (filterStatus === 'in_review' && requestStatus === 'in_review') ||
+        (filterStatus === 'in progress' && requestStatus === 'in progress');
+      const matchesSearch = searchQuery === '' || 
+        (request.program && request.program.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (request.studentId && request.studentId.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (request.id && request.id.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesStatus && matchesSearch;
+    }
   });
 
   const getStatusBadgeVariant = (status: string) => {

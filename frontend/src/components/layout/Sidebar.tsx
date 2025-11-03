@@ -10,7 +10,9 @@ import {
   UserCheck,
   Settings,
   Users,
-  Upload
+  Upload,
+  FileSearch,
+  BarChart3
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -23,8 +25,8 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['STUDENT', 'LIBRARY', 'BURSAR', 'ACADEMIC', 'VERIFIER', 'PROCESSOR', 'ADMIN'] },
-  { title: 'New Request', href: '/requests/new', icon: FileText, roles: ['STUDENT', 'ADMIN'] },
-  { title: 'My Requests', href: '/requests/my', icon: Inbox, roles: ['STUDENT', 'ADMIN'] },
+  { title: 'New Request', href: '/requests/new', icon: FileText, roles: ['STUDENT', 'VERIFIER', 'PROCESSOR', 'ADMIN'] },
+  { title: 'My Requests', href: '/requests/my', icon: Inbox, roles: ['STUDENT', 'VERIFIER', 'PROCESSOR', 'ADMIN'] },
   { title: 'TS Verifier Queue', href: '/queue/verifier', icon: UserCheck, roles: ['VERIFIER', 'ADMIN'] },
   { title: 'Library Queue', href: '/queue/library', icon: Library, roles: ['LIBRARY', 'ADMIN'] },
   { title: 'Bursar Queue', href: '/queue/bursar', icon: DollarSign, roles: ['BURSAR', 'ADMIN'] },
@@ -32,7 +34,9 @@ const navItems: NavItem[] = [
   { title: 'Processor', href: '/processor', icon: CheckSquare, roles: ['PROCESSOR', 'ADMIN'] },
   { title: 'User Management', href: '/admin/users', icon: Users, roles: ['ADMIN'] },
   { title: 'Import Data', href: '/admin/import', icon: Upload, roles: ['ADMIN'] },
-  { title: 'Settings', href: '/settings', icon: Settings, roles: ['STUDENT', 'VERIFIER', 'PROCESSOR', 'ADMIN'] },
+  { title: 'Audit Logs', href: '/admin/audit', icon: FileSearch, roles: ['ADMIN'] },
+  { title: 'Reports', href: '/admin/reports', icon: BarChart3, roles: ['ADMIN'] },
+  { title: 'Settings', href: '/settings', icon: Settings, roles: ['ADMIN'] },
 ];
 
 interface SidebarProps {

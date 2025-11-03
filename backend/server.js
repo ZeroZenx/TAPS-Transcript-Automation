@@ -13,6 +13,8 @@ import authLocalRouter from './routes/auth-local.js';
 import requestsRouter from './routes/requests.js';
 import adminRouter from './routes/admin.js';
 import importRouter from './routes/import.js';
+import auditRouter from './routes/audit.js';
+import reportsRouter from './routes/reports.js';
 
 dotenv.config();
 
@@ -107,6 +109,8 @@ app.use('/api/auth', authLocalRouter); // Local authentication routes
 app.use('/api/requests', requestsRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/import', importRouter);
+app.use('/api/audit', auditRouter);
+app.use('/api/reports', reportsRouter);
 
     // Serve index.html for all non-API routes (must be last)
     app.get('*', (req, res, next) => {

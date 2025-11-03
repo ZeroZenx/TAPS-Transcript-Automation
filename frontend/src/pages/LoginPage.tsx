@@ -39,7 +39,7 @@ export function LoginPage() {
     }
   };
 
-  const handleDemoLogin = async (role: 'admin' | 'library' | 'bursar' | 'academic' = 'admin') => {
+  const handleDemoLogin = async (role: 'admin' | 'library' | 'bursar' | 'academic' | 'verifier' | 'processor' = 'admin') => {
     setLoading(true);
     setLoginMethod('local');
     
@@ -49,6 +49,8 @@ export function LoginPage() {
         library: { email: 'library@example.com', password: 'demo123' },
         bursar: { email: 'bursar@example.com', password: 'demo123' },
         academic: { email: 'academic@example.com', password: 'demo123' },
+        verifier: { email: 'verifier@example.com', password: 'demo123' },
+        processor: { email: 'processor@example.com', password: 'demo123' },
       };
       
       const { email: demoEmail, password: demoPassword } = demoAccounts[role];
@@ -218,6 +220,22 @@ export function LoginPage() {
                   className="w-full bg-blue-50 hover:bg-blue-100 border-blue-200"
                 >
                   🎓 Academic Login
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => handleDemoLogin('verifier')}
+                  variant="outline"
+                  className="w-full bg-orange-50 hover:bg-orange-100 border-orange-200"
+                >
+                  📋 Registry (Verifier) Login
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => handleDemoLogin('processor')}
+                  variant="outline"
+                  className="w-full bg-amber-50 hover:bg-amber-100 border-amber-200"
+                >
+                  ✅ Registry (Processor) Login
                 </Button>
               </div>
               <p className="text-xs text-center text-muted-foreground">

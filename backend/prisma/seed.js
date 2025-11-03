@@ -78,6 +78,40 @@ async function main() {
     },
   });
 
+  // Create Registry (Verifier) user
+  const verifier = await prisma.user.upsert({
+    where: { email: 'verifier@example.com' },
+    update: {
+      passwordHash,
+      authMethod: 'LOCAL',
+      role: 'VERIFIER',
+    },
+    create: {
+      email: 'verifier@example.com',
+      name: 'Registry - Verifier',
+      role: 'VERIFIER',
+      authMethod: 'LOCAL',
+      passwordHash,
+    },
+  });
+
+  // Create Registry (Processor) user
+  const processor = await prisma.user.upsert({
+    where: { email: 'processor@example.com' },
+    update: {
+      passwordHash,
+      authMethod: 'LOCAL',
+      role: 'PROCESSOR',
+    },
+    create: {
+      email: 'processor@example.com',
+      name: 'Registry - Processor',
+      role: 'PROCESSOR',
+      authMethod: 'LOCAL',
+      passwordHash,
+    },
+  });
+
   // Create sample student
   const student = await prisma.user.upsert({
     where: { email: 'student@example.com' },
@@ -108,6 +142,8 @@ async function main() {
   console.log('  - Library:', library.email, '(password: demo123)');
   console.log('  - Bursar:', bursar.email, '(password: demo123)');
   console.log('  - Academic:', academic.email, '(password: demo123)');
+  console.log('  - Registry (Verifier):', verifier.email, '(password: demo123)');
+  console.log('  - Registry (Processor):', processor.email, '(password: demo123)');
   console.log('  - Student:', student.email);
   console.log('  - Request:', request.id);
 }

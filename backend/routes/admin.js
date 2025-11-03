@@ -9,13 +9,30 @@ const router = express.Router();
 router.use(authenticateToken);
 router.use(requireRole('ADMIN'));
 
-// Get all users
+// Get all users (only staff users who can login - exclude STUDENT role)
 router.get('/users', async (req, res) => {
   try {
     const { page = 1, limit = 50, role } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const where = role ? { role } : {};
+    // Staff roles only - exclude STUDENT (Registry = VERIFIER/PROCESSOR)
+    // Only show the 6 staff accounts that have login access:
+    // ADMIN, LIBRARY, BURSAR, ACADEMIC, VERIFIER, PROCESSOR
+    const staffRoles = ['LIBRARY', 'BURSAR', 'ACADEMIC', 'VERIFIER', 'PROCESSOR', 'ADMIN'];
+    
+    // Filter by staff roles only - STUDENT role is explicitly excluded
+    let where = {
+      role: {
+        in: staffRoles, // Only show staff users who can login
+      },
+      // Ensure user has login capability (has authMethod OR passwordHash)
+      // This ensures we don't show any STUDENT users even if they somehow have a staff role
+    };
+
+    // If a specific role is requested, filter by it (but still exclude STUDENT)
+    if (role && staffRoles.includes(role.toUpperCase())) {
+      where.role = role.toUpperCase();
+    }
 
     const [users, total] = await Promise.all([
       prisma.user.findMany({
@@ -29,6 +46,7 @@ router.get('/users', async (req, res) => {
           name: true,
           role: true,
           createdAt: true,
+          authMethod: true,
           _count: {
             select: { requests: true },
           },
@@ -52,7 +70,7 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// Update user role
+// Update user role (only staff roles allowed - STUDENT excluded)
 router.patch('/users/:id/role', async (req, res) => {
   try {
     const { role } = req.body;
@@ -62,14 +80,15 @@ router.patch('/users/:id/role', async (req, res) => {
       return res.status(400).json({ error: 'Role is required' });
     }
 
-    const validRoles = ['STUDENT', 'LIBRARY', 'BURSAR', 'ACADEMIC', 'VERIFIER', 'PROCESSOR', 'ADMIN'];
-    if (!validRoles.includes(role)) {
-      return res.status(400).json({ error: 'Invalid role' });
+    // Only staff roles allowed - STUDENT role cannot be assigned
+    const validRoles = ['LIBRARY', 'BURSAR', 'ACADEMIC', 'VERIFIER', 'PROCESSOR', 'ADMIN'];
+    if (!validRoles.includes(role.toUpperCase())) {
+      return res.status(400).json({ error: 'Invalid role. Only staff roles are allowed.' });
     }
 
     const user = await prisma.user.update({
       where: { id: userId },
-      data: { role },
+      data: { role: role.toUpperCase() },
       select: {
         id: true,
         email: true,
