@@ -146,17 +146,59 @@ async function importData() {
       });
       
       try {
+        // Validate row - skip continuation rows and invalid data
+        const requestId = row['Request ID']?.trim();
+        const studentId = row['Student ID']?.trim();
+        const studentEmail = row['Email Address']?.trim();
+        
+        // Skip rows with invalid request IDs (these are continuation rows)
+        const invalidRequestIds = [
+          'Library Dept', 'Bursar Dept', 'Transcript Processor', 'Transcript Verifier',
+          'Completed', 'False', ''
+        ];
+        if (requestId && invalidRequestIds.includes(requestId)) {
+          continue;
+        }
+        
+        // Skip rows where request ID looks like HTML/conversation content
+        if (requestId && (requestId.includes('<b>') || requestId.includes('<br>') || requestId.length > 100)) {
+          continue;
+        }
+        
+        // Skip rows with invalid student IDs
+        if (studentId && ['False', 'Completed', ''].includes(studentId)) {
+          continue;
+        }
+        
+        // Skip rows without valid student ID or email
+        if (!studentId || (!studentEmail && !studentId.match(/^\d+$/))) {
+          continue;
+        }
+        
+        // Validate date - skip if date is invalid
+        const requestDate = parseDate(row['Date of Request']);
+        if (!requestDate || isNaN(requestDate.getTime())) {
+          // If we have a valid request ID, try to find existing request and update it
+          if (requestId && requestId.match(/^\d+$/)) {
+            // This might be a valid request with a bad date, skip for now
+            continue;
+          } else {
+            // Skip completely invalid rows
+            continue;
+          }
+        }
+        
         // Find or create user by email
         let user = await prisma.user.findUnique({
-          where: { email: row['Email Address'] || row['Email'] || `student_${row['Student ID']}@costaatt.edu.tt` }
+          where: { email: studentEmail || `student_${studentId}@costaatt.edu.tt` }
         });
         
-        if (!user && row['Email Address']) {
+        if (!user && studentEmail) {
           // Create user if doesn't exist
           user = await prisma.user.create({
             data: {
-              email: row['Email Address'],
-              name: row['Requestor'] || row['Email Address'].split('@')[0],
+              email: studentEmail,
+              name: row['Requestor'] || studentEmail.split('@')[0],
               role: 'STUDENT',
               authMethod: 'LOCAL'
             }
@@ -166,11 +208,11 @@ async function importData() {
         // Prepare request data
         const requestData = {
           title: row['Title'] || null,
-          requestId: row['Request ID'] || null,
-          studentId: row['Student ID'] || '',
-          studentEmail: row['Email Address'] || '',
+          requestId: requestId || null,
+          studentId: studentId || '',
+          studentEmail: studentEmail || '',
           program: row['Program'] || '',
-          requestDate: parseDate(row['Date of Request']) || new Date(),
+          requestDate: requestDate || new Date(),
           status: row['Status'] || 'PENDING',
           idValue: row['Id_Value'] || null,
           requestor: row['Requestor'] || null,
@@ -183,10 +225,22 @@ async function importData() {
           academicCorrectionAddressed: parseBoolean(row['Academic Correction Addressed']),
           academicCorrectionComments: row['Academic Correction Comments'] || null,
           responsibleDeptForAcademicIssues: row['Responsible Dept for Academic Issues'] || null,
-          academicDeptFirstReminder: parseDate(row['AcademicDeptFirstReminder']),
-          academicDeptSecondReminder: parseDate(row['AcademicDeptSecondReminder']),
-          academicDeptThirdReminder: parseDate(row['AcademicDeptThirdReminder']),
-          academicDeptFourthReminder: parseDate(row['AcademicDeptFourthReminder']),
+          academicDeptFirstReminder: (() => {
+            const d = parseDate(row['AcademicDeptFirstReminder']);
+            return d && !isNaN(d.getTime()) ? d : null;
+          })(),
+          academicDeptSecondReminder: (() => {
+            const d = parseDate(row['AcademicDeptSecondReminder']);
+            return d && !isNaN(d.getTime()) ? d : null;
+          })(),
+          academicDeptThirdReminder: (() => {
+            const d = parseDate(row['AcademicDeptThirdReminder']);
+            return d && !isNaN(d.getTime()) ? d : null;
+          })(),
+          academicDeptFourthReminder: (() => {
+            const d = parseDate(row['AcademicDeptFourthReminder']);
+            return d && !isNaN(d.getTime()) ? d : null;
+          })(),
           
           // Library
           libraryStatus: row['Library Dept Status'] || null,
@@ -223,14 +277,35 @@ async function importData() {
           sendAcademicCorrectionMadeNotification: parseBoolean(row['SendAcademicCorrectionMadeNotification']),
           sendToTranscriptVerifier: parseBoolean(row['SendToTranscriptVerifier']),
           
-          // Dates
-          assistantRegistrarNotificationDate: parseDate(row['Assistant Registrar Notification Date']),
-          deanRegistrarNotificationDate: parseDate(row['Dean Registrar Notification Date']),
-          vpAcademicAffairsAndRegistrarNotificationDate: parseDate(row['VP Academic Affairs and Registrar Notification Date']),
-          requestCancellationNotificationDate: parseDate(row['Request Cancellation Notification Date']),
-          pendingDueFirstReminderDate: parseDate(row['PendingDueFirstReminderDate']),
-          pendingDueFinalReminderDate: parseDate(row['PendingDueFinalReminderDate']),
-          pendingDueRequestCancellationReminder: parseDate(row['PendingDueRequestCancellationReminder']),
+          // Dates (skip invalid dates)
+          assistantRegistrarNotificationDate: (() => {
+            const d = parseDate(row['Assistant Registrar Notification Date']);
+            return d && !isNaN(d.getTime()) ? d : null;
+          })(),
+          deanRegistrarNotificationDate: (() => {
+            const d = parseDate(row['Dean Registrar Notification Date']);
+            return d && !isNaN(d.getTime()) ? d : null;
+          })(),
+          vpAcademicAffairsAndRegistrarNotificationDate: (() => {
+            const d = parseDate(row['VP Academic Affairs and Registrar Notification Date']);
+            return d && !isNaN(d.getTime()) ? d : null;
+          })(),
+          requestCancellationNotificationDate: (() => {
+            const d = parseDate(row['Request Cancellation Notification Date']);
+            return d && !isNaN(d.getTime()) ? d : null;
+          })(),
+          pendingDueFirstReminderDate: (() => {
+            const d = parseDate(row['PendingDueFirstReminderDate']);
+            return d && !isNaN(d.getTime()) ? d : null;
+          })(),
+          pendingDueFinalReminderDate: (() => {
+            const d = parseDate(row['PendingDueFinalReminderDate']);
+            return d && !isNaN(d.getTime()) ? d : null;
+          })(),
+          pendingDueRequestCancellationReminder: (() => {
+            const d = parseDate(row['PendingDueRequestCancellationReminder']);
+            return d && !isNaN(d.getTime()) ? d : null;
+          })(),
           
           // Cancellation
           cancelType: row['Cancel Type'] || null,
@@ -246,17 +321,23 @@ async function importData() {
           parchmentCode: row['Parchment Code'] || null,
           
           // Metadata
-          created: parseDate(row['Created']) || new Date(),
+          created: (() => {
+            const d = parseDate(row['Created']);
+            return d && !isNaN(d.getTime()) ? d : new Date();
+          })(),
           createdBy: row['Created By'] || null,
-          modified: parseDate(row['Modified']) || new Date(),
+          modified: (() => {
+            const d = parseDate(row['Modified']);
+            return d && !isNaN(d.getTime()) ? d : new Date();
+          })(),
           modifiedBy: row['Modified By'] || null,
           
           // User relation
           userId: user?.id || null
         };
         
-        // Skip if no student ID or email
-        if (!requestData.studentId && !requestData.studentEmail) {
+        // Additional validation - ensure we have at least student ID
+        if (!requestData.studentId || requestData.studentId === 'False' || requestData.studentId === 'Completed') {
           continue;
         }
         
