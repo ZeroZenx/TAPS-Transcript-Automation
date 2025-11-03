@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { Footer } from './Footer';
 import { useAuth } from '../../hooks/useAuth';
 
 export function Layout() {
@@ -16,6 +17,7 @@ export function Layout() {
             <Outlet />
           </div>
         </main>
+        <Footer />
       </div>
     </div>
   );

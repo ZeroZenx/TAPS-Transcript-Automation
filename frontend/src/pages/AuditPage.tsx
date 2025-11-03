@@ -236,12 +236,56 @@ export function AuditPage() {
                         </td>
                         <td className="p-3 text-sm">
                           <details className="cursor-pointer">
-                            <summary className="text-muted-foreground hover:text-foreground">
-                              View Details
+                            <summary className="text-muted-foreground hover:text-foreground flex items-center gap-2">
+                              <span>View Details</span>
+                              {log.details?.changedFields && (
+                                <Badge variant="outline" className="text-xs">
+                                  {log.details.changedFields.length} change(s)
+                                </Badge>
+                              )}
                             </summary>
-                            <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-auto max-h-40">
-                              {JSON.stringify(log.details, null, 2)}
-                            </pre>
+                            <div className="mt-2 p-3 bg-muted rounded text-xs">
+                              {log.details?.changes ? (
+                                // Field-level changes display
+                                <div className="space-y-2">
+                                  {log.details.summary && (
+                                    <p className="font-medium mb-3 text-sm">{log.details.summary}</p>
+                                  )}
+                                  <div className="space-y-3">
+                                    {Object.entries(log.details.changes).map(([field, change]: [string, any]) => (
+                                      <div key={field} className="border-l-2 border-primary pl-3 py-1">
+                                        <div className="font-semibold text-primary mb-1 capitalize">
+                                          {field.replace(/([A-Z])/g, ' $1').trim()}
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2 text-xs">
+                                          <div>
+                                            <span className="text-muted-foreground">Old:</span>
+                                            <div className="mt-1 p-1 bg-red-50 dark:bg-red-950/20 rounded line-through text-red-600 dark:text-red-400">
+                                              {change.old === null || change.old === undefined || change.old === '' 
+                                                ? '(empty)' 
+                                                : String(change.old)}
+                                            </div>
+                                          </div>
+                                          <div>
+                                            <span className="text-muted-foreground">New:</span>
+                                            <div className="mt-1 p-1 bg-green-50 dark:bg-green-950/20 rounded text-green-600 dark:text-green-400">
+                                              {change.new === null || change.new === undefined || change.new === '' 
+                                                ? '(empty)' 
+                                                : String(change.new)}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                // Fallback to JSON for non-change logs
+                                <pre className="overflow-auto max-h-40">
+                                  {JSON.stringify(log.details, null, 2)}
+                                </pre>
+                              )}
+                            </div>
                           </details>
                         </td>
                       </tr>

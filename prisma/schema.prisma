@@ -1,4 +1,4 @@
-// Prisma schema for TAPS Transcript Automation System
+// Prisma schema for TAPS - Transcript Automation and Processing Service
 
 generator client {
   provider = "prisma-client-js"
@@ -28,6 +28,7 @@ model Request {
   requestId      String?  @unique // External request ID
   studentId      String
   studentEmail   String
+  contactNumber  String?  // Optional contact number
   program        String
   requestDate    DateTime @default(now())
   status         String   @default("PENDING") // PENDING, IN_REVIEW, APPROVED, REJECTED, COMPLETED, CANCELLED, NEW

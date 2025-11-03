@@ -1,7 +1,7 @@
 import express from 'express';
 import prisma from '../lib/prisma.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
-import { createAuditLog } from '../lib/audit.js';
+import { createAuditLog, createAuditLogWithChanges } from '../lib/audit.js';
 
 const router = express.Router();
 
@@ -86,6 +86,21 @@ router.patch('/users/:id/role', async (req, res) => {
       return res.status(400).json({ error: 'Invalid role. Only staff roles are allowed.' });
     }
 
+    // Get old user data for comparison
+    const oldUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+      },
+    });
+
+    if (!oldUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     const user = await prisma.user.update({
       where: { id: userId },
       data: { role: role.toUpperCase() },
@@ -101,11 +116,14 @@ router.patch('/users/:id/role', async (req, res) => {
       where: { email: req.user.email },
     });
 
-    await createAuditLog('USER_ROLE_UPDATED', {
-      targetUserId: userId,
-      targetUserEmail: user.email,
-      newRole: role,
-    }, currentUser?.id);
+    // Use enhanced audit logging to track role change
+    await createAuditLogWithChanges(
+      'USER_ROLE_UPDATED',
+      { role: oldUser.role },
+      { role: user.role },
+      currentUser?.id,
+      null
+    );
 
     res.json({ user });
   } catch (error) {

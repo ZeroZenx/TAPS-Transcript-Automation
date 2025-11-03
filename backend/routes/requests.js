@@ -1,7 +1,7 @@
 import express from 'express';
 import prisma from '../lib/prisma.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
-import { createAuditLog } from '../lib/audit.js';
+import { createAuditLog, createAuditLogWithChanges } from '../lib/audit.js';
 import { uploadFileToSharePoint } from '../lib/sharepoint.js';
 import { triggerPowerAutomateWebhook } from '../lib/powerautomate.js';
 
@@ -126,7 +126,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // Create new transcript request
 router.post('/', authenticateToken, requireRole('STUDENT'), async (req, res) => {
   try {
-    const { studentId, studentEmail, program, requestor, parchmentCode, requestDate, files } = req.body;
+    const { studentId, studentEmail, contactNumber, program, requestor, parchmentCode, requestDate, files } = req.body;
 
     if (!studentId || !studentEmail || !requestor || !parchmentCode) {
       return res.status(400).json({ error: 'Missing required fields: studentId, studentEmail, requestor, and parchmentCode are required' });
@@ -174,6 +174,7 @@ router.post('/', authenticateToken, requireRole('STUDENT'), async (req, res) => 
         requestId,
         studentId,
         studentEmail,
+        contactNumber: contactNumber || null,
         program: program || null,
         requestor,
         parchmentCode,
@@ -193,7 +194,17 @@ router.post('/', authenticateToken, requireRole('STUDENT'), async (req, res) => 
       },
     });
 
-    await createAuditLog('REQUEST_CREATED', { requestId: request.requestId || request.id }, user?.id, request.id);
+    // Log request creation with full details
+    await createAuditLog('REQUEST_CREATED', {
+      requestId: request.requestId,
+      studentId: request.studentId,
+      studentEmail: request.studentEmail,
+      contactNumber: request.contactNumber,
+      program: request.program,
+      requestor: request.requestor,
+      parchmentCode: request.parchmentCode,
+      status: request.status,
+    }, user?.id, request.id);
     await triggerPowerAutomateWebhook('REQUEST_CREATED', { requestId: request.requestId || request.id, studentEmail });
 
     res.status(201).json({ request });
@@ -438,6 +449,46 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       });
     }
 
+    // Handle file attachments (for all roles that can update)
+    if (req.body.files && Array.isArray(req.body.files) && req.body.files.length > 0) {
+      try {
+        // Get existing files
+        let existingFiles = [];
+        if (currentRequest.filesUrl) {
+          try {
+            existingFiles = typeof currentRequest.filesUrl === 'string' 
+              ? JSON.parse(currentRequest.filesUrl) 
+              : currentRequest.filesUrl;
+          } catch (e) {
+            existingFiles = [];
+          }
+        }
+
+        // Upload new files to SharePoint
+        const uploadPromises = req.body.files.map(async (file) => {
+          const fileBuffer = Buffer.from(file.content, 'base64');
+          return uploadFileToSharePoint(file.name, fileBuffer);
+        });
+
+        const uploadResults = await Promise.all(uploadPromises);
+        
+        // Merge existing files with new files
+        const allFiles = [...existingFiles, ...uploadResults];
+        updateData.filesUrl = JSON.stringify(allFiles);
+      } catch (uploadError) {
+        console.error('File upload error:', uploadError);
+        // Don't fail the entire update if file upload fails
+      }
+    }
+
+    // Prepare old data for comparison (only fields that will be updated)
+    const oldData = {};
+    Object.keys(updateData).forEach(key => {
+      if (currentRequest[key] !== undefined) {
+        oldData[key] = currentRequest[key];
+      }
+    });
+
     // Update request
     const updatedRequest = await prisma.request.update({
       where: { id: requestId },
@@ -449,10 +500,24 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       },
     });
 
-    await createAuditLog('REQUEST_UPDATED', auditDetails, user?.id, requestId);
+    // Build new data object for comparison
+    const newData = {};
+    Object.keys(updateData).forEach(key => {
+      newData[key] = updateData[key];
+    });
+
+    // Use enhanced audit logging with field-level change tracking
+    await createAuditLogWithChanges(
+      'REQUEST_UPDATED',
+      oldData,
+      newData,
+      user?.id,
+      requestId
+    );
+
     await triggerPowerAutomateWebhook('REQUEST_UPDATED', {
       requestId,
-      updates: auditDetails,
+      updates: updateData,
     });
 
     res.json({ request: updatedRequest });

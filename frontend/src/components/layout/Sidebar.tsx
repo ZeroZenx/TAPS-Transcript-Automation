@@ -59,7 +59,7 @@ export function Sidebar({ userRole }: SidebarProps) {
     <div className="fixed left-0 top-0 h-screen w-64 bg-card border-r border-border flex flex-col">
       <div className="p-6 border-b border-border">
         <h1 className="text-xl font-bold text-primary">TAPS</h1>
-        <p className="text-xs text-muted-foreground mt-1">Transcript Automation</p>
+        <p className="text-xs text-muted-foreground mt-1">Transcript Automation and Processing Service</p>
       </div>
       
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin">

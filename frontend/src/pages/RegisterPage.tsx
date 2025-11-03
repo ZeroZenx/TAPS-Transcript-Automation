@@ -80,7 +80,7 @@ export function RegisterPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold">Create Account</CardTitle>
-          <CardDescription>Register for TAPS Transcript System</CardDescription>
+          <CardDescription>Register for TAPS - Transcript Automation and Processing Service</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

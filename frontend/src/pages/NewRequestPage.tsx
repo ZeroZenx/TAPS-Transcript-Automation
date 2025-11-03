@@ -18,6 +18,7 @@ const requestSchema = z.object({
   requestor: z.string().min(1, 'Requestor is required'),
   parchmentCode: z.string().min(1, 'Parchment Code is required'),
   requestDate: z.string().min(1, 'Date of Request is required'),
+  contactNumber: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -80,6 +81,7 @@ export function NewRequestPage() {
       return requestsApi.create({
         ...data,
         requestDate: parseDate(data.requestDate),
+        contactNumber: data.contactNumber || null,
         files: fileData,
       });
     },
@@ -205,6 +207,20 @@ export function NewRequestPage() {
               </div>
 
               <div className="space-y-2">
+                <label htmlFor="requestor" className="text-sm font-medium">
+                  Requestor *
+                </label>
+                <Input
+                  id="requestor"
+                  {...register('requestor')}
+                  placeholder="Enter requestor name"
+                />
+                {errors.requestor && (
+                  <p className="text-sm text-destructive">{errors.requestor.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
                 <label htmlFor="requestDate" className="text-sm font-medium">
                   Date of Request *
                 </label>
@@ -239,20 +255,6 @@ export function NewRequestPage() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="requestor" className="text-sm font-medium">
-                  Requestor *
-                </label>
-                <Input
-                  id="requestor"
-                  {...register('requestor')}
-                  placeholder="Enter requestor name"
-                />
-                {errors.requestor && (
-                  <p className="text-sm text-destructive">{errors.requestor.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
                 <label htmlFor="studentEmail" className="text-sm font-medium">
                   Email Address *
                 </label>
@@ -264,6 +266,21 @@ export function NewRequestPage() {
                 />
                 {errors.studentEmail && (
                   <p className="text-sm text-destructive">{errors.studentEmail.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="contactNumber" className="text-sm font-medium">
+                  Contact Number
+                </label>
+                <Input
+                  id="contactNumber"
+                  type="tel"
+                  {...register('contactNumber')}
+                  placeholder="Enter contact number (optional)"
+                />
+                {errors.contactNumber && (
+                  <p className="text-sm text-destructive">{errors.contactNumber.message}</p>
                 )}
               </div>
 

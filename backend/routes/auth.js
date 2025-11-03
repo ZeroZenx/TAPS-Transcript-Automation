@@ -31,6 +31,9 @@ router.post('/login', async (req, res) => {
       });
 
       await createAuditLog('USER_CREATED', { email, name }, user.id);
+    } else {
+      // Log login for existing users
+      await createAuditLog('USER_LOGIN_AZURE', { email, name: user.name, role: user.role }, user.id);
     }
 
     // Return user info (token handled by frontend)

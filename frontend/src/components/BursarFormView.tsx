@@ -6,7 +6,7 @@ import { useToast } from './ui/use-toast';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { X, FileText, Send } from 'lucide-react';
+import { X, FileText, Send, Upload } from 'lucide-react';
 
 interface BursarFormViewProps {
   request: any;
@@ -28,6 +28,11 @@ export function BursarFormView({ request, requestId }: BursarFormViewProps) {
   
   // State for attachments
   const [attachments, setAttachments] = useState<any[]>([]);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  
+  // File upload constants
+  const ALLOWED_FILE_TYPES = ['.pdf', '.jpg', '.jpeg', '.png', '.docx'];
+  const MAX_FILES = 10;
   
   // State for conversation panel
   const [message, setMessage] = useState('');
@@ -42,6 +47,7 @@ export function BursarFormView({ request, requestId }: BursarFormViewProps) {
         title: 'Success',
         description: 'Request updated successfully',
       });
+      setNewFiles([]); // Clear new files after successful upload
       queryClient.invalidateQueries({ queryKey: ['requests', requestId] });
     },
     onError: (error: any) => {
@@ -53,7 +59,7 @@ export function BursarFormView({ request, requestId }: BursarFormViewProps) {
     },
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate required fields
     if (!bursarStatus) {
       toast({
@@ -64,10 +70,24 @@ export function BursarFormView({ request, requestId }: BursarFormViewProps) {
       return;
     }
 
+    // Convert new files to base64
+    const filePromises = newFiles.map(async (file) => {
+      const arrayBuffer = await file.arrayBuffer();
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      return {
+        name: file.name,
+        content: base64,
+        type: file.type,
+      };
+    });
+
+    const fileData = await Promise.all(filePromises);
+
     const updates: any = {
       bursarStatus,
       officeOfBursarDueAmount: officeOfBursarDueAmount || null,
       officeOfBursarDueDetails: officeOfBursarDueDetails || null,
+      files: fileData.length > 0 ? fileData : undefined,
     };
 
     updateMutation.mutate(updates);
@@ -100,7 +120,51 @@ export function BursarFormView({ request, requestId }: BursarFormViewProps) {
   const handleRemoveAttachment = (index: number) => {
     const newAttachments = attachments.filter((_, i) => i !== index);
     setAttachments(newAttachments);
-    // TODO: Update request with new attachments
+  };
+
+  const handleRemoveNewFile = (index: number) => {
+    setNewFiles(newFiles.filter((_, i) => i !== index));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      
+      // Validate file types
+      const invalidFiles = selectedFiles.filter(file => {
+        const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+        return !ALLOWED_FILE_TYPES.includes(ext);
+      });
+
+      if (invalidFiles.length > 0) {
+        toast({
+          title: 'Invalid File Type',
+          description: `Only PDF, JPG, PNG, and DOCX files are allowed`,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Check total file count
+      if (attachments.length + newFiles.length + selectedFiles.length > MAX_FILES) {
+        toast({
+          title: 'Too Many Files',
+          description: `Maximum ${MAX_FILES} files allowed`,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      setNewFiles([...newFiles, ...selectedFiles]);
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
   const bursarStatusOptions = ['Approved', 'Pending', 'Awaiting Payment'];
@@ -213,41 +277,92 @@ export function BursarFormView({ request, requestId }: BursarFormViewProps) {
                 {/* Attachments */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    Attachments <span className="text-red-500">*</span>
+                    Attachments
                   </label>
-                  <div className="space-y-2">
-                    {attachments.map((file: any, index: number) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-2 border rounded"
-                      >
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">{file.name || file}</span>
-                        </div>
-                        <button
-                          onClick={() => handleRemoveAttachment(index)}
-                          className="p-1 hover:bg-destructive hover:text-destructive-foreground rounded"
+                  
+                  {/* Existing Attachments */}
+                  {attachments.length > 0 && (
+                    <div className="space-y-2 mb-3">
+                      <p className="text-xs text-muted-foreground">Existing files:</p>
+                      {attachments.map((file: any, index: number) => (
+                        <div
+                          key={`existing-${index}`}
+                          className="flex items-center justify-between p-2 border rounded bg-muted/50"
                         >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm">{file.name || file.webUrl || file}</span>
+                          </div>
+                          <button
+                            onClick={() => handleRemoveAttachment(index)}
+                            className="p-1 hover:bg-destructive hover:text-destructive-foreground rounded"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* New Files to Upload */}
+                  {newFiles.length > 0 && (
+                    <div className="space-y-2 mb-3">
+                      <p className="text-xs text-muted-foreground">New files to upload:</p>
+                      {newFiles.map((file, index) => (
+                        <div
+                          key={`new-${index}`}
+                          className="flex items-center justify-between p-3 border rounded hover:bg-accent transition-colors"
+                        >
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{file.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatFileSize(file.size)}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveNewFile(index)}
+                            className="p-1 hover:bg-destructive hover:text-destructive-foreground rounded transition-colors shrink-0"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* File Upload Button */}
+                  <div>
+                    <label
+                      htmlFor="bursar-file-upload"
+                      className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-dashed border-input rounded-md cursor-pointer hover:bg-accent transition-colors text-sm font-medium"
+                    >
+                      <Upload className="h-4 w-4" />
+                      <span>Attach file</span>
+                    </label>
+                    <input
+                      id="bursar-file-upload"
+                      type="file"
+                      multiple
+                      accept=".pdf,.jpg,.jpeg,.png,.docx"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      disabled={attachments.length + newFiles.length >= MAX_FILES}
+                    />
+                    {attachments.length + newFiles.length >= MAX_FILES && (
+                      <p className="text-xs text-muted-foreground mt-2 text-center">
+                        Maximum {MAX_FILES} files reached
+                      </p>
+                    )}
+                    {(attachments.length === 0 && newFiles.length === 0) && (
+                      <p className="text-xs text-muted-foreground mt-2 text-center">
+                        No files attached. Click "Attach file" to add files.
+                      </p>
+                    )}
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      // TODO: Implement file upload
-                      toast({
-                        title: 'File Upload',
-                        description: 'File upload functionality coming soon',
-                      });
-                    }}
-                  >
-                    Attach file
-                  </Button>
                 </div>
 
                 {/* Submit and Cancel Buttons */}

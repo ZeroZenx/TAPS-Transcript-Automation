@@ -1,4 +1,4 @@
-# TAPS - Transcript Automation Portal System
+# TAPS - Transcript Automation and Processing Service
 
 A modern, enterprise-grade web application for managing transcript requests with role-based access control, Azure AD authentication, and SharePoint integration.
 

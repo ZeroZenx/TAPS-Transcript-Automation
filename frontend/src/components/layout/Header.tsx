@@ -42,7 +42,7 @@ export function Header({ userName, userEmail }: HeaderProps) {
     <header className="sticky top-0 z-40 w-full border-b border-border bg-card overflow-x-hidden">
       <div className="flex h-16 items-center justify-between px-6 min-w-0">
         <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold">TAPS Transcript System</h2>
+          <h2 className="text-base font-semibold truncate">TAPS - Transcript Automation and Processing Service</h2>
         </div>
         
         <div className="flex items-center gap-4">

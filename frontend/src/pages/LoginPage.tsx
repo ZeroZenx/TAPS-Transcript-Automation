@@ -152,7 +152,7 @@ export function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold">TAPS</CardTitle>
-          <CardDescription>Transcript Automation Portal System</CardDescription>
+          <CardDescription>Transcript Automation and Processing Service</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Login Method Tabs */}
