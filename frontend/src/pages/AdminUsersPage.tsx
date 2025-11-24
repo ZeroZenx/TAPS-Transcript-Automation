@@ -7,7 +7,7 @@ import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { formatDate } from '../lib/utils';
-import { Search } from 'lucide-react';
+import { Search, Edit2, Check, X } from 'lucide-react';
 
 // Only staff roles who can login - STUDENT role excluded
 const roles = ['LIBRARY', 'BURSAR', 'ACADEMIC', 'VERIFIER', 'PROCESSOR', 'ADMIN'];
@@ -42,28 +42,86 @@ export function AdminUsersPage() {
     );
   });
 
-  const updateRoleMutation = useMutation({
-    mutationFn: async ({ id, role }: { id: string; role: string }) => {
-      return adminApi.updateUserRole(id, role);
+  // Track which user is being edited
+  const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [editData, setEditData] = useState<{ [key: string]: { name: string; email: string; role: string } }>({});
+
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: { name?: string; email?: string; role?: string } }) => {
+      return adminApi.updateUser(id, data);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast({
         title: 'Success',
-        description: 'User role updated successfully',
+        description: 'User updated successfully',
       });
+      setEditingUser(null);
+      // Clear edit data for this user
+      const newEditData = { ...editData };
+      delete newEditData[variables.id];
+      setEditData(newEditData);
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
     },
     onError: (error: any) => {
       toast({
         title: 'Error',
-        description: error.response?.data?.error || 'Failed to update user role',
+        description: error.response?.data?.error || 'Failed to update user',
         variant: 'destructive',
       });
     },
   });
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
-    await updateRoleMutation.mutateAsync({ id: userId, role: newRole });
+  const handleEdit = (user: any) => {
+    setEditingUser(user.id);
+    setEditData({
+      ...editData,
+      [user.id]: {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  };
+
+  const handleCancel = (userId: string) => {
+    setEditingUser(null);
+    const newEditData = { ...editData };
+    delete newEditData[userId];
+    setEditData(newEditData);
+  };
+
+  const handleSave = async (userId: string) => {
+    const data = editData[userId];
+    if (!data) return;
+
+    const updates: { name?: string; email?: string; role?: string } = {};
+    const originalUser = filteredUsers.find((u: any) => u.id === userId);
+
+    if (data.name !== originalUser.name) {
+      updates.name = data.name;
+    }
+    if (data.email !== originalUser.email) {
+      updates.email = data.email;
+    }
+    if (data.role !== originalUser.role) {
+      updates.role = data.role;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await updateUserMutation.mutateAsync({ id: userId, data: updates });
+    } else {
+      handleCancel(userId);
+    }
+  };
+
+  const handleFieldChange = (userId: string, field: 'name' | 'email' | 'role', value: string) => {
+    setEditData({
+      ...editData,
+      [userId]: {
+        ...editData[userId],
+        [field]: value,
+      },
+    });
   };
 
   return (
@@ -124,39 +182,104 @@ export function AdminUsersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map((user: any) => (
-                    <tr key={user.id} className="border-b hover:bg-accent transition-colors">
-                      <td className="p-3 text-sm font-medium">{user.name}</td>
-                      <td className="p-3 text-sm">{user.email}</td>
-                      <td className="p-3">
-                        <Badge>{user.role}</Badge>
-                      </td>
-                      <td className="p-3">
-                        <select
-                          value={user.role}
-                          onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                          className="rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-                          disabled={updateRoleMutation.isPending}
-                        >
-                          {roles.map((role) => (
-                            <option key={role} value={role}>
-                              {role}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="p-3 text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRoleChange(user.id, user.role)}
-                          disabled={updateRoleMutation.isPending}
-                        >
-                          Save
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredUsers.map((user: any) => {
+                    const isEditing = editingUser === user.id;
+                    const currentEditData = editData[user.id] || { name: user.name, email: user.email, role: user.role };
+
+                    return (
+                      <tr key={user.id} className="border-b hover:bg-accent transition-colors">
+                        <td className="p-3">
+                          {isEditing ? (
+                            <Input
+                              value={currentEditData.name}
+                              onChange={(e) => handleFieldChange(user.id, 'name', e.target.value)}
+                              className="w-full text-sm"
+                              placeholder="Name"
+                            />
+                          ) : (
+                            <span className="text-sm font-medium">{user.name}</span>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          {isEditing ? (
+                            <Input
+                              type="email"
+                              value={currentEditData.email}
+                              onChange={(e) => handleFieldChange(user.id, 'email', e.target.value)}
+                              className="w-full text-sm"
+                              placeholder="email@example.com"
+                            />
+                          ) : (
+                            <span className="text-sm">{user.email}</span>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          {!isEditing && <Badge>{user.role}</Badge>}
+                        </td>
+                        <td className="p-3">
+                          {isEditing ? (
+                            <select
+                              value={currentEditData.role}
+                              onChange={(e) => handleFieldChange(user.id, 'role', e.target.value)}
+                              className="rounded-md border border-input bg-background px-3 py-1.5 text-sm w-full"
+                            >
+                              {roles.map((role) => (
+                                <option key={role} value={role}>
+                                  {role}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <select
+                              value={user.role}
+                              onChange={(e) => handleFieldChange(user.id, 'role', e.target.value)}
+                              className="rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+                              disabled
+                              style={{ opacity: 0.5 }}
+                            >
+                              {roles.map((role) => (
+                                <option key={role} value={role}>
+                                  {role}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </td>
+                        <td className="p-3 text-right">
+                          {isEditing ? (
+                            <div className="flex gap-2 justify-end">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleSave(user.id)}
+                                disabled={updateUserMutation.isPending}
+                              >
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleCancel(user.id)}
+                                disabled={updateUserMutation.isPending}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(user)}
+                              disabled={editingUser !== null}
+                            >
+                              <Edit2 className="h-4 w-4 mr-1" />
+                              Edit
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

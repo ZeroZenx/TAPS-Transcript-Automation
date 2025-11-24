@@ -1,5 +1,7 @@
 import prisma from './prisma.js';
 import { getEmailSettings, sendEmail } from './email.js';
+import { parseEmails } from './email-utils.js';
+import logger from './logger.js';
 
 /**
  * Replace template variables in email templates
@@ -25,7 +27,7 @@ export async function sendLibraryQueueNotification(request) {
     const settings = await getEmailSettings();
     
     if (!settings || !settings.enableAlerts || !settings.libraryEmail) {
-      console.log('Library queue notification disabled or email not configured');
+      logger.warn('Library queue notification disabled or email not configured');
       return { success: false, message: 'Library email not configured' };
     }
 
@@ -48,8 +50,15 @@ export async function sendLibraryQueueNotification(request) {
       program: request.program,
     });
 
+    // Parse multiple emails if configured
+    const libraryEmails = parseEmails(settings.libraryEmail);
+    if (libraryEmails.length === 0) {
+      logger.warn('No valid library emails found');
+      return { success: false, message: 'No valid library emails configured' };
+    }
+
     const result = await sendEmail({
-      to: settings.libraryEmail,
+      to: libraryEmails,
       subject,
       htmlBody: `
         <html>
@@ -63,9 +72,10 @@ export async function sendLibraryQueueNotification(request) {
       textBody: body,
     });
 
+    logger.info(`Library queue notification sent to ${libraryEmails.length} recipient(s): ${libraryEmails.join(', ')}`);
     return result;
   } catch (error) {
-    console.error('Error sending Library queue notification:', error);
+    logger.error('Error sending Library queue notification:', error);
     return { success: false, message: error.message };
   }
 }
@@ -78,7 +88,7 @@ export async function sendBursarQueueNotification(request) {
     const settings = await getEmailSettings();
     
     if (!settings || !settings.enableAlerts || !settings.bursarEmail) {
-      console.log('Bursar queue notification disabled or email not configured');
+      logger.warn('Bursar queue notification disabled or email not configured');
       return { success: false, message: 'Bursar email not configured' };
     }
 
@@ -116,9 +126,10 @@ export async function sendBursarQueueNotification(request) {
       textBody: body,
     });
 
+    logger.info(`Bursar queue notification sent to ${bursarEmails.length} recipient(s): ${bursarEmails.join(', ')}`);
     return result;
   } catch (error) {
-    console.error('Error sending Bursar queue notification:', error);
+    logger.error('Error sending Bursar queue notification:', error);
     return { success: false, message: error.message };
   }
 }
@@ -131,7 +142,7 @@ export async function sendAcademicQueueNotification(request) {
     const settings = await getEmailSettings();
     
     if (!settings || !settings.enableAlerts || !settings.academicEmail) {
-      console.log('Academic queue notification disabled or email not configured');
+      logger.warn('Academic queue notification disabled or email not configured');
       return { success: false, message: 'Academic email not configured' };
     }
 
@@ -154,8 +165,15 @@ export async function sendAcademicQueueNotification(request) {
       program: request.program,
     });
 
+    // Parse multiple emails if configured
+    const academicEmails = parseEmails(settings.academicEmail);
+    if (academicEmails.length === 0) {
+      logger.warn('No valid academic emails found');
+      return { success: false, message: 'No valid academic emails configured' };
+    }
+
     const result = await sendEmail({
-      to: settings.academicEmail,
+      to: academicEmails,
       subject,
       htmlBody: `
         <html>
@@ -169,9 +187,10 @@ export async function sendAcademicQueueNotification(request) {
       textBody: body,
     });
 
+    logger.info(`Academic queue notification sent to ${academicEmails.length} recipient(s): ${academicEmails.join(', ')}`);
     return result;
   } catch (error) {
-    console.error('Error sending Academic queue notification:', error);
+    logger.error('Error sending Academic queue notification:', error);
     return { success: false, message: error.message };
   }
 }
@@ -184,7 +203,7 @@ export async function sendReminderEmails() {
     const settings = await getEmailSettings();
     
     if (!settings || !settings.enableReminders) {
-      console.log('Reminders disabled');
+      logger.warn('Reminders disabled');
       return { success: false, message: 'Reminders disabled' };
     }
 
@@ -196,7 +215,8 @@ export async function sendReminderEmails() {
     const cutoffTimeAcademic = new Date(Date.now() - (reminderHoursAcademic * 60 * 60 * 1000));
 
     // Find requests where Library hasn't responded
-    if (settings.enableReminderLibrary && settings.libraryEmail) {
+    const libraryEmails = parseEmails(settings.libraryEmail);
+    if (settings.enableReminderLibrary && libraryEmails.length > 0) {
       const libraryPendingRequests = await prisma.request.findMany({
         where: {
           libraryStatus: 'PENDING',
@@ -228,14 +248,15 @@ export async function sendReminderEmails() {
                 details: JSON.stringify({ reminderHours: reminderHoursLibrary }),
               },
             });
-            console.log(`Reminder sent to Library for request ${request.requestId}`);
+            logger.info(`Reminder sent to Library for request ${request.requestId}`);
           }
         }
       }
     }
 
     // Find requests where Bursar hasn't responded
-    if (settings.enableReminderBursar && settings.bursarEmail) {
+    const bursarEmails = parseEmails(settings.bursarEmail);
+    if (settings.enableReminderBursar && bursarEmails.length > 0) {
       const bursarPendingRequests = await prisma.request.findMany({
         where: {
           bursarStatus: 'PENDING',
@@ -267,7 +288,7 @@ export async function sendReminderEmails() {
                 details: JSON.stringify({ reminderHours: reminderHoursBursar }),
               },
             });
-            console.log(`Reminder sent to Bursar for request ${request.requestId}`);
+            logger.info(`Reminder sent to Bursar for request ${request.requestId}`);
           }
         }
       }
@@ -275,7 +296,8 @@ export async function sendReminderEmails() {
 
     // Find requests where Academic hasn't responded
     // Only send reminders for requests where both Library and Bursar have confirmed
-    if (settings.enableReminderAcademic && settings.academicEmail) {
+    const academicEmails = parseEmails(settings.academicEmail);
+    if (settings.enableReminderAcademic && academicEmails.length > 0) {
       // First, get requests where Academic status is PENDING and both Library and Bursar have confirmed
       const academicEligibleRequests = await prisma.request.findMany({
         where: {
@@ -320,7 +342,7 @@ export async function sendReminderEmails() {
                   details: JSON.stringify({ reminderHours: reminderHoursAcademic }),
                 },
               });
-              console.log(`Reminder sent to Academic for request ${request.requestId}`);
+              logger.info(`Reminder sent to Academic for request ${request.requestId}`);
             }
           }
         }
@@ -329,7 +351,7 @@ export async function sendReminderEmails() {
 
     return { success: true, message: 'Reminders processed' };
   } catch (error) {
-    console.error('Error sending reminder emails:', error);
+    logger.error('Error sending reminder emails:', error);
     return { success: false, message: error.message };
   }
 }
@@ -365,7 +387,7 @@ export async function checkAndNotifyAcademic(request) {
               }),
             },
           });
-          console.log(`Academic notification sent for request ${request.requestId}`);
+          logger.info(`Academic notification sent for request ${request.requestId}`);
         }
         
         return result;
@@ -374,7 +396,7 @@ export async function checkAndNotifyAcademic(request) {
     
     return { success: false, message: 'Not ready for Academic notification' };
   } catch (error) {
-    console.error('Error checking and notifying Academic:', error);
+    logger.error('Error checking and notifying Academic:', error);
     return { success: false, message: error.message };
   }
 }
@@ -386,8 +408,9 @@ export async function sendLibraryStatusChangeNotification(request, oldStatus, ne
   try {
     const settings = await getEmailSettings();
     
-    if (!settings || !settings.enableAlerts || !settings.bursarEmail) {
-      console.log('Library status change notification disabled or Bursar email not configured');
+    const bursarEmails = parseEmails(settings.bursarEmail);
+    if (!settings || !settings.enableAlerts || bursarEmails.length === 0) {
+      logger.warn('Library status change notification disabled or Bursar email not configured');
       return { success: false, message: 'Bursar email not configured' };
     }
 
@@ -448,9 +471,10 @@ export async function sendLibraryStatusChangeNotification(request, oldStatus, ne
       textBody: body,
     });
 
+    logger.info(`Library status change notification sent to ${bursarEmails.length} recipient(s): ${bursarEmails.join(', ')}`);
     return result;
   } catch (error) {
-    console.error('Error sending Library status change notification:', error);
+    logger.error('Error sending Library status change notification:', error);
     return { success: false, message: error.message };
   }
 }
@@ -463,7 +487,7 @@ export async function sendBursarStatusChangeNotification(request, oldStatus, new
     const settings = await getEmailSettings();
     
     if (!settings || !settings.enableAlerts || !settings.emailAccount) {
-      console.log('Bursar status change notification disabled or TAPS email not configured');
+      logger.warn('Bursar status change notification disabled or TAPS email not configured');
       return { success: false, message: 'TAPS email not configured' };
     }
 
@@ -522,9 +546,10 @@ export async function sendBursarStatusChangeNotification(request, oldStatus, new
       textBody: body,
     });
 
+    logger.info(`Bursar status change notification sent to TAPS`);
     return result;
   } catch (error) {
-    console.error('Error sending Bursar status change notification:', error);
+    logger.error('Error sending Bursar status change notification:', error);
     return { success: false, message: error.message };
   }
 }
@@ -537,7 +562,7 @@ export async function sendLibraryStatusChangeToTAPS(request, oldStatus, newStatu
     const settings = await getEmailSettings();
     
     if (!settings || !settings.enableAlerts || !settings.emailAccount) {
-      console.log('Library status change notification to TAPS disabled or email not configured');
+      logger.warn('Library status change notification to TAPS disabled or email not configured');
       return { success: false, message: 'TAPS email not configured' };
     }
 
@@ -596,9 +621,10 @@ export async function sendLibraryStatusChangeToTAPS(request, oldStatus, newStatu
       textBody: body,
     });
 
+    logger.info(`Library status change notification sent to TAPS`);
     return result;
   } catch (error) {
-    console.error('Error sending Library status change notification to TAPS:', error);
+    logger.error('Error sending Library status change notification to TAPS:', error);
     return { success: false, message: error.message };
   }
 }
@@ -611,7 +637,7 @@ export async function sendAcademicStatusChangeToTAPS(request, oldStatus, newStat
     const settings = await getEmailSettings();
     
     if (!settings || !settings.enableAlerts || !settings.emailAccount) {
-      console.log('Academic status change notification to TAPS disabled or email not configured');
+      logger.warn('Academic status change notification to TAPS disabled or email not configured');
       return { success: false, message: 'TAPS email not configured' };
     }
 
@@ -648,9 +674,10 @@ export async function sendAcademicStatusChangeToTAPS(request, oldStatus, newStat
       textBody: body,
     });
 
+    logger.info(`Academic status change notification sent to TAPS`);
     return result;
   } catch (error) {
-    console.error('Error sending Academic status change notification to TAPS:', error);
+    logger.error('Error sending Academic status change notification to TAPS:', error);
     return { success: false, message: error.message };
   }
 }
@@ -663,7 +690,7 @@ export async function sendRequestStatusChangeToTAPS(request, oldStatus, newStatu
     const settings = await getEmailSettings();
     
     if (!settings || !settings.enableAlerts || !settings.emailAccount) {
-      console.log('Request status change notification to TAPS disabled or email not configured');
+      logger.warn('Request status change notification to TAPS disabled or email not configured');
       return { success: false, message: 'TAPS email not configured' };
     }
 
@@ -700,9 +727,10 @@ export async function sendRequestStatusChangeToTAPS(request, oldStatus, newStatu
       textBody: body,
     });
 
+    logger.info(`Request status change notification sent to TAPS`);
     return result;
   } catch (error) {
-    console.error('Error sending Request status change notification to TAPS:', error);
+    logger.error('Error sending Request status change notification to TAPS:', error);
     return { success: false, message: error.message };
   }
 }
@@ -715,7 +743,7 @@ export async function sendAcademicCompletedNotification(request) {
     const settings = await getEmailSettings();
     
     if (!settings || !settings.enableAlerts) {
-      console.log('Academic completed notification disabled');
+      logger.warn('Academic completed notification disabled');
       return { success: false, message: 'Notifications disabled' };
     }
 
@@ -756,9 +784,10 @@ export async function sendAcademicCompletedNotification(request) {
       textBody: body,
     });
 
+    logger.info(`Academic completed notification sent`);
     return result;
   } catch (error) {
-    console.error('Error sending Academic completed notification:', error);
+    logger.error('Error sending Academic completed notification:', error);
     return { success: false, message: error.message };
   }
 }
@@ -771,7 +800,7 @@ export async function sendAcademicCorrectionNotification(request) {
     const settings = await getEmailSettings();
     
     if (!settings || !settings.enableAlerts) {
-      console.log('Academic correction notification disabled');
+      logger.warn('Academic correction notification disabled');
       return { success: false, message: 'Notifications disabled' };
     }
 
@@ -810,9 +839,10 @@ export async function sendAcademicCorrectionNotification(request) {
       textBody: body,
     });
 
+    logger.info(`Academic correction notification sent`);
     return result;
   } catch (error) {
-    console.error('Error sending Academic correction notification:', error);
+    logger.error('Error sending Academic correction notification:', error);
     return { success: false, message: error.message };
   }
 }
@@ -825,7 +855,7 @@ export async function sendCompletionNotification(request) {
     const settings = await getEmailSettings();
     
     if (!settings || !settings.enableAlerts || !request.studentEmail) {
-      console.log('Completion notification disabled or student email not available');
+      logger.warn('Completion notification disabled or student email not available');
       return { success: false, message: 'Completion notification disabled or student email missing' };
     }
 
@@ -870,9 +900,10 @@ export async function sendCompletionNotification(request) {
       textBody: body,
     });
 
+    logger.info(`Completion notification sent to student: ${request.studentEmail}`);
     return result;
   } catch (error) {
-    console.error('Error sending completion notification:', error);
+    logger.error('Error sending completion notification:', error);
     return { success: false, message: error.message };
   }
 }
@@ -885,7 +916,7 @@ export async function sendCancellationNotification(request) {
     const settings = await getEmailSettings();
     
     if (!settings || !settings.enableAlerts || !request.studentEmail) {
-      console.log('Cancellation notification disabled or student email not available');
+      logger.warn('Cancellation notification disabled or student email not available');
       return { success: false, message: 'Cancellation notification disabled or student email missing' };
     }
 
@@ -926,9 +957,10 @@ export async function sendCancellationNotification(request) {
       textBody: body,
     });
 
+    logger.info(`Cancellation notification sent to student: ${request.studentEmail}`);
     return result;
   } catch (error) {
-    console.error('Error sending cancellation notification:', error);
+    logger.error('Error sending cancellation notification:', error);
     return { success: false, message: error.message };
   }
 }

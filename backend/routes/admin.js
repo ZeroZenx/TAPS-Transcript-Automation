@@ -2,6 +2,8 @@ import express from 'express';
 import prisma from '../lib/prisma.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 import { createAuditLog, createAuditLogWithChanges } from '../lib/audit.js';
+import { asyncHandler, ValidationError } from '../lib/errors.js';
+import logger from '../lib/logger.js';
 
 const router = express.Router();
 
@@ -65,7 +67,7 @@ router.get('/users', async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Get users error:', error);
+    logger.error('Get users error:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
   }
 });
@@ -127,8 +129,110 @@ router.patch('/users/:id/role', async (req, res) => {
 
     res.json({ user });
   } catch (error) {
-    console.error('Update user role error:', error);
+    logger.error('Update user role error:', error);
     res.status(500).json({ error: 'Failed to update user role' });
+  }
+});
+
+// Update user details (name, email, role)
+router.patch('/users/:id', async (req, res) => {
+  try {
+    const { name, email, role } = req.body;
+    const userId = req.params.id;
+
+    // Get old user data for comparison
+    const oldUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+      },
+    });
+
+    if (!oldUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Build update data
+    const updateData = {};
+    const changes = {};
+
+    if (name !== undefined && name !== oldUser.name) {
+      updateData.name = name.trim();
+      changes.name = { old: oldUser.name, new: name.trim() };
+    }
+
+    if (email !== undefined && email !== oldUser.email) {
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
+
+      // Check if email is already taken by another user
+      const existingUser = await prisma.user.findUnique({
+        where: { email: email.trim().toLowerCase() },
+      });
+
+      if (existingUser && existingUser.id !== userId) {
+        return res.status(409).json({ error: 'Email already in use by another user' });
+      }
+
+      updateData.email = email.trim().toLowerCase();
+      changes.email = { old: oldUser.email, new: email.trim().toLowerCase() };
+    }
+
+    if (role !== undefined && role !== oldUser.role) {
+      // Only staff roles allowed - STUDENT role cannot be assigned
+      const validRoles = ['LIBRARY', 'BURSAR', 'ACADEMIC', 'VERIFIER', 'PROCESSOR', 'ADMIN'];
+      if (!validRoles.includes(role.toUpperCase())) {
+        return res.status(400).json({ error: 'Invalid role. Only staff roles are allowed.' });
+      }
+      updateData.role = role.toUpperCase();
+      changes.role = { old: oldUser.role, new: role.toUpperCase() };
+    }
+
+    // If no changes, return current user
+    if (Object.keys(updateData).length === 0) {
+      return res.json({ user: oldUser });
+    }
+
+    // Update user
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    const currentUser = await prisma.user.findUnique({
+      where: { email: req.user.email },
+    });
+
+    // Log changes
+    await createAuditLogWithChanges(
+      'USER_UPDATED',
+      oldUser,
+      user,
+      currentUser?.id,
+      null
+    );
+
+    logger.info(`User updated: ${user.email} by ${req.user.email}`, { changes: Object.keys(changes) });
+    res.json({ user });
+  } catch (error) {
+    logger.error('Update user error:', error);
+    if (error.code === 'P2002') {
+      return res.status(409).json({ error: 'Email already in use' });
+    }
+    res.status(500).json({ error: 'Failed to update user' });
   }
 });
 
@@ -160,7 +264,7 @@ router.get('/stats', async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Get stats error:', error);
+    logger.error('Get stats error:', error);
     res.status(500).json({ error: 'Failed to fetch stats' });
   }
 });

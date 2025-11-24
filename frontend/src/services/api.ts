@@ -70,6 +70,8 @@ export const adminApi = {
     api.get('/admin/users', { params }),
   updateUserRole: (id: string, role: string) =>
     api.patch(`/admin/users/${id}/role`, { role }),
+  updateUser: (id: string, data: { name?: string; email?: string; role?: string }) =>
+    api.patch(`/admin/users/${id}`, data),
   getStats: () => api.get('/admin/stats'),
 };
 

@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '../components/ui/use-toast';
 import { settingsApi } from '../services/api';
 import { Settings, User, Lock, Bell, Database, Mail, Send } from 'lucide-react';
+import { EmailListInput } from '../components/ui/email-list-input';
 
 export function SettingsPage() {
   const { user } = useAuth();
@@ -411,49 +412,34 @@ export function SettingsPage() {
                 {/* Department Email Addresses */}
                 <div className="space-y-4 pt-4 border-t">
                   <h3 className="text-lg font-semibold">Department Email Addresses</h3>
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <div className="space-y-2">
-                      <label htmlFor="libraryEmail" className="text-sm font-medium">
-                        Library Email *
-                      </label>
-                      <Input
-                        id="libraryEmail"
-                        type="email"
-                        value={emailConfig.libraryEmail}
-                        onChange={(e) =>
-                          setEmailConfig({ ...emailConfig, libraryEmail: e.target.value })
-                        }
-                        placeholder="library@costaatt.edu.tt"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="bursarEmail" className="text-sm font-medium">
-                        Bursar Email *
-                      </label>
-                      <Input
-                        id="bursarEmail"
-                        type="email"
-                        value={emailConfig.bursarEmail}
-                        onChange={(e) =>
-                          setEmailConfig({ ...emailConfig, bursarEmail: e.target.value })
-                        }
-                        placeholder="bursar@costaatt.edu.tt"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="academicEmail" className="text-sm font-medium">
-                        Academic Email *
-                      </label>
-                      <Input
-                        id="academicEmail"
-                        type="email"
-                        value={emailConfig.academicEmail}
-                        onChange={(e) =>
-                          setEmailConfig({ ...emailConfig, academicEmail: e.target.value })
-                        }
-                        placeholder="academic@costaatt.edu.tt"
-                      />
-                    </div>
+                  <p className="text-sm text-muted-foreground">
+                    Add multiple email addresses for each department. All addresses will receive notifications.
+                  </p>
+                  <div className="grid gap-6 md:grid-cols-1">
+                    <EmailListInput
+                      label="Library Email Addresses *"
+                      value={emailConfig.libraryEmail}
+                      onChange={(value) =>
+                        setEmailConfig({ ...emailConfig, libraryEmail: value })
+                      }
+                      placeholder="library@costaatt.edu.tt"
+                    />
+                    <EmailListInput
+                      label="Bursar Email Addresses *"
+                      value={emailConfig.bursarEmail}
+                      onChange={(value) =>
+                        setEmailConfig({ ...emailConfig, bursarEmail: value })
+                      }
+                      placeholder="bursar@costaatt.edu.tt"
+                    />
+                    <EmailListInput
+                      label="Academic Email Addresses *"
+                      value={emailConfig.academicEmail}
+                      onChange={(value) =>
+                        setEmailConfig({ ...emailConfig, academicEmail: value })
+                      }
+                      placeholder="academic@costaatt.edu.tt"
+                    />
                   </div>
                 </div>
 

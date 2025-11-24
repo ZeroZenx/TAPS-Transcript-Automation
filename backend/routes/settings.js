@@ -4,6 +4,8 @@ import { authenticateToken, requireRole } from '../middleware/auth.js';
 import { clearEmailSettingsCache } from '../lib/email.js';
 import { createAuditLog } from '../lib/audit.js';
 import bcrypt from 'bcryptjs';
+import { parseEmails, formatEmailsForStorage, validateEmails } from '../lib/email-utils.js';
+import logger from '../lib/logger.js';
 
 const router = express.Router();
 
@@ -39,7 +41,7 @@ router.get('/', async (req, res) => {
 
     res.json({ settings: safeSettings });
   } catch (error) {
-    console.error('Get settings error:', error);
+    logger.error('Get settings error:', error);
     res.status(500).json({ error: 'Failed to fetch settings' });
   }
 });
@@ -112,9 +114,28 @@ router.patch('/', async (req, res) => {
     if (replyTo !== undefined) updateData.replyTo = replyTo || null;
     if (enableAlerts !== undefined) updateData.enableAlerts = enableAlerts;
     if (enableReminders !== undefined) updateData.enableReminders = enableReminders;
-    if (libraryEmail !== undefined) updateData.libraryEmail = libraryEmail || null;
-    if (bursarEmail !== undefined) updateData.bursarEmail = bursarEmail || null;
-    if (academicEmail !== undefined) updateData.academicEmail = academicEmail || null;
+    // Validate and format email addresses (support multiple emails)
+    if (libraryEmail !== undefined) {
+      const validation = validateEmails(libraryEmail);
+      if (!validation.valid) {
+        return res.status(400).json({ error: validation.message });
+      }
+      updateData.libraryEmail = formatEmailsForStorage(validation.emails);
+    }
+    if (bursarEmail !== undefined) {
+      const validation = validateEmails(bursarEmail);
+      if (!validation.valid) {
+        return res.status(400).json({ error: validation.message });
+      }
+      updateData.bursarEmail = formatEmailsForStorage(validation.emails);
+    }
+    if (academicEmail !== undefined) {
+      const validation = validateEmails(academicEmail);
+      if (!validation.valid) {
+        return res.status(400).json({ error: validation.message });
+      }
+      updateData.academicEmail = formatEmailsForStorage(validation.emails);
+    }
     if (libraryQueueTemplate !== undefined) updateData.libraryQueueTemplate = libraryQueueTemplate || null;
     if (libraryQueueSubject !== undefined) updateData.libraryQueueSubject = libraryQueueSubject || null;
     if (bursarQueueTemplate !== undefined) updateData.bursarQueueTemplate = bursarQueueTemplate || null;
@@ -171,7 +192,7 @@ router.patch('/', async (req, res) => {
 
     res.json({ settings: safeSettings, message: 'Settings updated successfully' });
   } catch (error) {
-    console.error('Update settings error:', error);
+    logger.error('Update settings error:', error);
     res.status(500).json({ error: 'Failed to update settings' });
   }
 });
@@ -214,7 +235,7 @@ router.post('/test-email', async (req, res) => {
       res.status(400).json({ error: result.message || 'Failed to send test email', success: false });
     }
   } catch (error) {
-    console.error('Test email error:', error);
+    logger.error('Test email error:', error);
     res.status(500).json({ error: 'Failed to send test email', details: error.message });
   }
 });
@@ -246,35 +267,35 @@ router.post('/send-message', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Request not found' });
     }
 
-    // Determine recipient email based on selection
-    let recipientEmail = null;
+    // Determine recipient email(s) based on selection
+    let recipientEmails = [];
     let recipientName = '';
 
     switch (recipient.toLowerCase()) {
       case 'library':
-        recipientEmail = config.libraryEmail;
+        recipientEmails = parseEmails(config.libraryEmail);
         recipientName = 'Library Department';
         break;
       case 'bursar':
-        recipientEmail = config.bursarEmail;
+        recipientEmails = parseEmails(config.bursarEmail);
         recipientName = 'Bursar Department';
         break;
       case 'academic':
-        recipientEmail = config.academicEmail;
+        recipientEmails = parseEmails(config.academicEmail);
         recipientName = 'Academic Department';
         break;
       case 'admin':
         // For admin, use the configured email account or find an admin user
-        recipientEmail = config.emailAccount;
+        recipientEmails = config.emailAccount ? [config.emailAccount] : [];
         recipientName = 'Administrator';
         break;
       default:
         return res.status(400).json({ error: 'Invalid recipient' });
     }
 
-    if (!recipientEmail) {
+    if (recipientEmails.length === 0) {
       return res.status(400).json({ 
-        error: `${recipientName} email address not configured. Please configure it in Settings.` 
+        error: `${recipientName} email address(es) not configured. Please configure it in Settings.` 
       });
     }
 
@@ -304,7 +325,7 @@ router.post('/send-message', authenticateToken, async (req, res) => {
     const { sendEmail } = await import('../lib/email.js');
 
     const result = await sendEmail({
-      to: recipientEmail,
+      to: recipientEmails,
       subject: `TAPS System - Message regarding Request ${request.requestId || request.id.substring(0, 8)}`,
       htmlBody: `
         <html>
@@ -330,7 +351,7 @@ router.post('/send-message', authenticateToken, async (req, res) => {
         {
           requestId: request.requestId || request.id,
           recipient,
-          recipientEmail,
+          recipientEmails: recipientEmails.join(', '),
           message,
         },
         user?.id,
@@ -349,7 +370,7 @@ router.post('/send-message', authenticateToken, async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Send message error:', error);
+    logger.error('Send message error:', error);
     res.status(500).json({ error: 'Failed to send message', details: error.message });
   }
 });
