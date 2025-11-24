@@ -8,6 +8,10 @@ import { Layout } from './components/layout/Layout';
 import { Toaster } from './components/ui/toaster';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { VerifyEmailPage } from './pages/VerifyEmailPage';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { DashboardPage } from './pages/DashboardPage';
 import { NewRequestPage } from './pages/NewRequestPage';
 import { MyRequestsPage } from './pages/MyRequestsPage';
@@ -31,9 +35,8 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  // Wrap in error boundary to catch initialization errors
-  try {
-    return (
+  return (
+    <ErrorBoundary>
       <MsalProvider instance={pca}>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
@@ -41,6 +44,9 @@ function App() {
               <Routes>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route
                   path="/"
                   element={
@@ -72,17 +78,8 @@ function App() {
         </AuthProvider>
       </QueryClientProvider>
     </MsalProvider>
-    );
-  } catch (error) {
-    console.error('App initialization error:', error);
-    return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h1>Application Error</h1>
-        <p>Please check the browser console for details.</p>
-        <p>Error: {error instanceof Error ? error.message : 'Unknown error'}</p>
-      </div>
-    );
-  }
+    </ErrorBoundary>
+  );
 }
 
 export default App;

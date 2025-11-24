@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useMsal } from '@azure/msal-react';
 import { useAuth } from '../hooks/useAuth';
 import { loginRequest } from '../lib/msal-config';
@@ -247,6 +247,11 @@ export function LoginPage() {
                   Use local login
                 </button>
               </p>
+              <p className="text-xs text-center text-muted-foreground">
+                <Link to="/forgot-password" className="text-primary hover:underline">
+                  Forgot your password?
+                </Link>
+              </p>
             </>
           ) : (
             <form onSubmit={handleLocalLogin} className="space-y-4">
@@ -334,6 +339,11 @@ export function LoginPage() {
                   >
                     Use Microsoft 365
                   </button>
+                </p>
+                <p className="text-xs text-center text-muted-foreground">
+                  <Link to="/forgot-password" className="text-primary hover:underline">
+                    Forgot your password?
+                  </Link>
                 </p>
               </div>
             </form>

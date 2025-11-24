@@ -5,7 +5,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -16,11 +16,17 @@ model User {
   role           String   @default("STUDENT") // STUDENT, LIBRARY, BURSAR, ACADEMIC, VERIFIER, PROCESSOR, ADMIN
   passwordHash   String?  // For local authentication
   authMethod     String   @default("AZURE") // AZURE or LOCAL
+  emailVerified  Boolean  @default(false) // Email verification status
+  emailVerificationToken String? @unique // Token for email verification
+  emailVerificationExpires DateTime? // Expiration for verification token
+  passwordResetToken String? @unique // Token for password reset
+  passwordResetExpires DateTime? // Expiration for password reset token
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   requests       Request[]
   auditLogs      AuditLog[]
   errorLogs      ErrorLog[]
+  conversationMessages Conversation[] // Conversation messages
 }
 
 model Request {
@@ -97,9 +103,9 @@ model Request {
   cancelType String?
   reasonForRequestCancellation String?
   
-  // Messages and conversations
+  // Messages and conversations (legacy - kept for backward compatibility)
   recentMessage String?
-  conversations String?
+  conversations String? // Legacy field - use Conversation model instead
   sentTo String?
   sendMessage String? // TRUE/FALSE
   
@@ -124,6 +130,8 @@ model Request {
   user           User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   auditLogs      AuditLog[]
   slaMetrics     SLAMetric[]
+  conversationMessages Conversation[]
+  fileAttachments File[]
 }
 
 model AuditLog {
@@ -315,5 +323,37 @@ model ScheduledReport {
 
   @@index([enabled])
   @@index([nextRun])
+}
+
+model Conversation {
+  id                    String   @id @default(uuid())
+  requestId             String
+  request               Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  userId                String?
+  user                  User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  message               String
+  recipient             String?  // Email of recipient
+  sentTo                String?  // Who the message was sent to
+  createdAt             DateTime @default(now())
+  
+  @@index([requestId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model File {
+  id                    String   @id @default(uuid())
+  requestId             String
+  request               Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  filename              String
+  originalFilename      String
+  mimeType              String
+  size                  Int      // Size in bytes
+  url                   String   // URL to file (SharePoint or local)
+  uploadedBy            String?  // User ID
+  uploadedAt            DateTime @default(now())
+  
+  @@index([requestId])
+  @@index([uploadedAt])
 }
 

@@ -7,12 +7,18 @@ import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import { validateEnv } from './lib/env-validator.js';
+import { errorHandler } from './lib/errors.js';
+import logger from './lib/logger.js';
 
 import authRouter from './routes/auth.js';
 import authLocalRouter from './routes/auth-local.js';
+import authVerificationRouter from './routes/auth-verification.js';
 import requestsRouter from './routes/requests.js';
 import adminRouter from './routes/admin.js';
 import importRouter from './routes/import.js';
+import filesRouter from './routes/files.js';
+import conversationsRouter from './routes/conversations.js';
 import auditRouter from './routes/audit.js';
 import reportsRouter from './routes/reports.js';
 import settingsRouter from './routes/settings.js';
@@ -24,6 +30,19 @@ import monitoringRouter from './routes/monitoring.js';
 import scheduledReportsRouter from './routes/scheduled-reports.js';
 
 dotenv.config();
+
+// Validate environment variables
+try {
+  validateEnv();
+  logger.info('✅ Environment variables validated');
+} catch (error) {
+  logger.error('❌ Environment validation failed:', error.message);
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  } else {
+    logger.warn('⚠️  Continuing in development mode with missing variables');
+  }
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -107,15 +126,18 @@ const frontendDist = path.join(__dirname, '../frontend/dist');
         }
       }));
 } else {
-  console.warn(`⚠️  Frontend directory not found: ${frontendDist}`);
+  logger.warn(`Frontend directory not found: ${frontendDist}`);
 }
 
 // API routes
 app.use('/api/auth', authRouter);
 app.use('/api/auth', authLocalRouter); // Local authentication routes
+app.use('/api/auth', authVerificationRouter); // Email verification and password reset
 app.use('/api/requests', requestsRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/import', importRouter);
+app.use('/api/files', filesRouter);
+app.use('/api/conversations', conversationsRouter);
 app.use('/api/audit', auditRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/settings', settingsRouter);
@@ -138,15 +160,18 @@ app.use('/api/scheduled-reports', scheduledReportsRouter);
       res.setHeader('Expires', '0');
       res.sendFile(path.join(frontendDist, 'index.html'), (err) => {
         if (err) {
-          console.error('Error serving index.html:', err);
+          logger.error('Error serving index.html:', err);
           res.status(500).send('Error loading application');
         }
       });
     });
 
+// Error handler must be last
+app.use(errorHandler);
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`🚀 TAPS Server listening on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 Serving frontend from: ${frontendDist}`);
+  logger.info(`🚀 TAPS Server listening on port ${PORT}`);
+  logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  logger.info(`🌐 Serving frontend from: ${frontendDist}`);
 });
