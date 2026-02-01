@@ -208,3 +208,13 @@ Proprietary - COSTAATT
 ## Support
 
 For issues or questions, contact the development team.
+
+---
+
+## 🧪 CI / Deployment Notes
+
+This repo uses a GitHub Actions workflow (**Deploy TAPS to Azure**). Current CI failures are due to TypeScript `variant` prop mismatches in the frontend (see repo issue tracker).
+
+## 🔄 Dependency Updates
+
+Dependabot is enabled via `.github/dependabot.yml` to keep npm dependencies current (root, backend, frontend).
