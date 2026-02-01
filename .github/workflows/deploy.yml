@@ -2,8 +2,9 @@ name: Deploy TAPS to Azure
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -12,51 +13,85 @@ env:
   NODE_VERSION: '20.x'
 
 jobs:
-  build-and-deploy:
+  build:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: Install backend dependencies
-      run: |
-        cd backend
-        npm ci
+      - name: Install + build backend
+        run: |
+          cd backend
+          npm ci
+          # keep build lightweight; DB actions are handled in deploy job
+          if npm run | grep -qE '^  build'; then
+            npm run build
+          fi
 
-    - name: Generate Prisma Client
-      run: |
-        cd backend
-        npm run db:generate
+      - name: Install + build frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
 
-    - name: Build frontend
-      run: |
-        cd frontend
-        npm ci
-        npm run build
+  build-and-deploy:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
 
-    - name: Copy frontend build to backend
-      run: |
-        cp -r frontend/dist backend/public
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        package: ./backend
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
 
-    - name: Run database migrations
-      run: |
-        cd backend
-        npm run db:migrate:prod
-      env:
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm ci
 
+      - name: Generate Prisma Client
+        run: |
+          cd backend
+          npm run db:generate
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+
+      - name: Copy frontend build to backend
+        run: |
+          rm -rf backend/public
+          cp -r frontend/dist backend/public
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ./backend
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+
+      - name: Run database migrations (skips if DATABASE_URL not set)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          cd backend
+          if [ -z "$DATABASE_URL" ]; then
+            echo "DATABASE_URL secret not configured; skipping db:migrate:prod"
+          else
+            npm run db:migrate:prod
+          fi
